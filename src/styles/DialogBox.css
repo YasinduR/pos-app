@@ -1,0 +1,102 @@
+/* DialogBox.css */
+
+/* Overlay to dim the background */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Styling for the actual dialog box */
+  .dialog-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Heading style */
+  .dialog-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  /* Form input fields styling */
+  .dialog-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+  }
+  
+  .dialog-box input[type="text"],
+  .dialog-box input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+  }
+  
+  .dialog-box input[type="text"]:focus,
+  .dialog-box input[type="email"]:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  /* Button styling */
+  .dialog-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .dialog-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  .dialog-actions button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .dialog-actions button[type="button"] {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .dialog-actions button[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+  
+  .dialog-actions button[type="button"]:hover {
+    background-color: #aaa;
+  }
+  
+  /* Animation for dialog appearing */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

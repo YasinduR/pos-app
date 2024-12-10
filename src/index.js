@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import './styles/table.css'; // Import table.css globally
 import App from './App';
 import { AdminProvider } from './context/AdminContext';
 

@@ -41,21 +41,27 @@
   }
   
   .dialog-box input[type="text"],
-  .dialog-box input[type="email"] {
+  .dialog-box input[type="email"],
+  .dialog-box input[type="password"]{
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 1px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1em;
   }
   
   .dialog-box input[type="text"]:focus,
-  .dialog-box input[type="email"]:focus {
+  .dialog-box input[type="email"]:focus, 
+  .dialog-box input[type="password"]:focus {
     border-color: #007bff;
     outline: none;
   }
   
+  .dialog-box small{
+    font-size: 0.8em;
+    color: red;
+  }
   /* Button styling */
   .dialog-actions {
     display: flex;
@@ -99,23 +105,4 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  input {
-    font-size: 16px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  input[type="password"] {
-    /* Ensures consistency */
-    font-size: 16px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
   }

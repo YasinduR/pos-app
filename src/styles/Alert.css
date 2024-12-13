@@ -1,0 +1,31 @@
+
+.alert-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2); 
+  z-index: 9998; 
+}
+
+.alert-box {
+  position: fixed;         /* Fix it to the screen */
+  top: 50%;                 /* Position it in the middle vertically */
+  left: 50%;                /* Position it in the middle horizontally */
+  transform: translate(-50%, -50%); /* Offset it by 50% of its own width and height */
+  z-index: 9999;            /* Ensure it appears above other elements */
+  padding: 20px;
+  border-radius: 5px;
+  background-color: rgb(220, 220, 220);    /* Default background color */
+  color: rgb(6, 6, 6);
+  text-align: center;       /* Center the text */
+}
+
+.alert-box button {
+  background-color: rgb(124, 121, 121);
+  border: none;
+  color: rgb(6, 6, 6);
+  cursor: pointer;
+  padding: 5px;
+}

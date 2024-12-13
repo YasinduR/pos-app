@@ -1,9 +1,11 @@
 // Create/Update Customer
 import '../../styles/DialogBox.css'
 import React, { useState,useEffect } from 'react';
-
+import { useAlert } from '../../context/AlertContext';
 
 function DialogBox({ isOpen, onClose, onSave, initialCustomer, isNewCustomer }) {
+
+    const { showAlert } = useAlert();
 
     const [customer, setCustomer] = useState({
       firstname: '',
@@ -67,7 +69,8 @@ function DialogBox({ isOpen, onClose, onSave, initialCustomer, isNewCustomer }) 
         onSave(customer);
         onClose();
       } else {
-        alert('Please fix the errors before submitting.');
+        showAlert('Please fix the errors before submitting.', 'ok');
+       // alert('Please fix the errors before submitting.');
       }
     };
 

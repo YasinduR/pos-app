@@ -81,7 +81,7 @@ function Customers() {
             <th>Email</th>
             <th>Address</th>
             <th>Hometown</th>
-            <th>Actions</th>
+            <th colspan="2">Actions</th>
           </tr>
         </thead>
         <tbody>

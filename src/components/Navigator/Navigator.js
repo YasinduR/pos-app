@@ -8,6 +8,7 @@ function Navigator() {
     <nav>
       <button onClick={() => navigate('/customers')}>Customer Data</button>
       <button onClick={() => navigate('/products')}>Product Data</button>
+      <button onClick={() => navigate('/transactions')}>Transactions Data</button>
     </nav>
   );
 }

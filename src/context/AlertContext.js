@@ -5,7 +5,7 @@ const AlertContext = createContext();
 
 // Context provider component
 export const AlertProvider = ({ children }) => {
-  const [alert, setAlert] = useState({ isVisible: true, message: 'initial', type: 'info' });
+  const [alert, setAlert] = useState({ isVisible: false, message: '', type: 'info' });
 
   const showAlert = (message, type = 'info') => {
     console.log(message);

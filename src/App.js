@@ -8,6 +8,7 @@ import Products from './components/Products/Products';
 import Transactions from './components/Transactions/Transaction';
 
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import LogTransaction from './components/LogTransaction/LogTransaction';
 
 
 // ProtectedRoute => to ensure required adminstrative level
@@ -30,8 +31,11 @@ const App = () => {
         <ProtectedRoute>
             <Transactions />
         </ProtectedRoute>   },
-
-
+    { path: '/logtransactions', 
+        element:             
+        <ProtectedRoute>
+            <LogTransaction/>
+        </ProtectedRoute>   },
   ]);
   return routes;
 };

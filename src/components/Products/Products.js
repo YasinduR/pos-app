@@ -1,8 +1,60 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import api from '../../api';
 import DialogBox from './DialogBox';
+import styles from './products.module.css'
+
+function ImageBox({ product}) {  // ImageBox of a product
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const selectImage = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  return (
+
+        <div className={styles.imageBox}>
+        <img src={product.images[currentImageIndex]} alt={product.name} className={styles.productImage} />
+
+        <button className={styles.prevButton} onClick={prevImage}>❮</button>
+        <button className={styles.nextButton} onClick={nextImage}>❯</button>
+
+        {/* Navigation Dots */}
+        <div className={styles.imageIndicators}>
+          {product.images.map((_, index) => (
+            <span
+              key={index}
+              onClick={() => selectImage(index)}
+              className={index === currentImageIndex ? styles.activeDot : styles.dot}
+            />
+          ))}
+        </div>
+      </div>
+  );
+}
+
+
+
+
+
+
+
+
+
 
 function Products() {
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,10 +141,10 @@ function Products() {
     <div>
       <h1>Products</h1>
       <button onClick={handleAddProduct}>Add New Product</button>
+      <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
       <table>
         <thead>
           <tr>
-            <th>Product id</th>
             <th>Product Name</th>
             <th>Price</th>
             <th>Special price</th>
@@ -106,19 +158,22 @@ function Products() {
         <tbody>
           {products.map((product) => (
             <tr key={product.id}>
-              <td>{product.id}</td>
               <td>{product.name}</td>
               <td>{product.price}</td>
               <td>{product.special_price}</td>
               <td>{product.stock}</td>
               <td>{product.description}</td>
-              <td>{Array.isArray(product.images) && product.images.length > 0 ? (
-              <ul>
-              {product.images.map((url, index) => (<li key={index}>{url}</li>))}
-              </ul>
-              ) : (
-              "-"
-              )}
+
+        
+              <td>
+                {Array.isArray(product.images) && product.images.length > 0 ? (
+                  <ImageBox
+                  product={product}
+                />
+
+                ) : (
+                  '-'
+                )}
               </td>
 
               <td>

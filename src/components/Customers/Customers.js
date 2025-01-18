@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import DialogBox from './DialogBox';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+
 
 function Customers() {
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,10 +76,10 @@ function Customers() {
     <div>
       <h1>Customers</h1>
       <button onClick={handleAddCustomer}>Add New Customer</button>
+      <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
       <table>
         <thead>
           <tr>
-            <th>Customer ID</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
@@ -87,7 +91,6 @@ function Customers() {
         <tbody>
           {customers.map((customer) => (
             <tr key={customer.id}>
-              <td>{customer.id}</td>
               <td>{customer.firstname}</td>
               <td>{customer.lastname}</td>
               <td>{customer.email}</td>

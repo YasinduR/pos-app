@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
+import TransactionDetails from '../TransactionDetails/TransactionDetails';
 
 function Transactions() {
    
@@ -21,6 +22,7 @@ function Transactions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState('');
+    const [selectedTransaction,setSelectedTransaction] = useState(null);
 
   
      
@@ -31,7 +33,7 @@ function Transactions() {
     useEffect(() => {
       async function fetchTransactions() {
         try {
-          const response = await api.get('/transaction/history');
+          const response = await api.get('/transaction/all');
           setTransactions(response.data);
         } catch (err) {
           setError('Failed to load transaction data.');
@@ -98,6 +100,14 @@ function Transactions() {
         }
       };
 
+      const handleTransactionClick = (transaction) => {
+        setSelectedTransaction(transaction); // Set selected transaction
+      };
+    
+      const closeModal = () => {
+        setSelectedTransaction(null); // Deselect transaction
+      };
+
     if (loading) return <div>Loading transactions...</div>;
     if (error) return <div>{error}</div>;
   
@@ -145,7 +155,9 @@ function Transactions() {
             const tranactiontime_ = tranactiontime.split('.')[0];
             //const tranactionDate  = transactionDate.toISOString().split('T')[0];
               return (              
-              <tr key={transaction.id}>
+                <tr key={transaction.id} 
+                onClick={() => handleTransactionClick(transaction)}
+                >
               <td>{transaction.id}</td>
               {transaction.userid ?<td>{transaction.userid}</td> :<td>N/A</td> }
               <td>{tranactionDate}</td>
@@ -157,7 +169,16 @@ function Transactions() {
             )}
           </tbody>
         </table>
+      {selectedTransaction && (
+        <TransactionDetails
+          transaction={selectedTransaction}
+          onClose={closeModal}
+        />
+      )}
       </div>
+  
+
+
     );
   }
   

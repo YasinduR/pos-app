@@ -6,7 +6,7 @@ function LogTransaction() {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
-  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
   const [cart,setCart] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [amount, setamount] = useState(0);
@@ -127,9 +127,9 @@ function LogTransaction() {
         <label>User:</label>
         <select
           value={selectedUser}
-          onChange={(e) => setSelectedUser(e.target.value)}
+          onChange={(e) => setSelectedUser(e.target.value === "null" ? null : e.target.value)}
         >
-          <option value="">-</option>
+          <option value="null">-</option>
           {users.map((user) => (
             <option key={user.id} value={user.id}>
               {user.firstname} {user.lastname}

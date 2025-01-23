@@ -2,6 +2,34 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import TransactionDetails from '../TransactionDetails/TransactionDetails';
 
+
+function Username({userid}){
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        if(!userid){
+          setUser(null);
+          throw new Error();
+        }
+        const response = await api.get(`/users/${userid}`);
+        setUser(response.data);
+        console.log(user);
+      } catch (err) {
+        setUser(null);
+      }
+    }
+    fetchUser();
+  }, []);
+
+
+  return (
+      <p>{user ?  user.firstname+" "+user.lastname : 'N/A'}</p>
+  );
+}
+
+
 function Transactions() {
    
   // Date
@@ -14,6 +42,10 @@ function Transactions() {
    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);  // fisrt day of current month
    const formattedTommorow = tommorrow.toISOString().split('T')[0]; // Format as "YYYY-MM-DD"
    const formattedStartDate = firstDayOfMonth.toISOString().split('T')[0]; // Format as "YYYY-MM-DD"
+
+   const [page, setPage] = useState(1);
+   const [pageSize] = useState(3); // Number of transactions per page
+   const [totalPages,settotalPages] =useState(1);
    
    const [startDate, setStartDate] = useState(formattedStartDate);
    const [endDate, setEndDate] = useState(formattedTommorow);
@@ -21,14 +53,89 @@ function Transactions() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [userId, setUserId] = useState('');
+    const [userId, setUserId] = useState(null);
     const [selectedTransaction,setSelectedTransaction] = useState(null);
 
-  
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [users, setUsers] = useState(["All","Non User"]);
      
     const isvalid = (num) =>{
         return Number.isInteger(Number(num)) && num > 0 
     }
+
+    const renderPageNumbers = () => {  //Pages under the search
+      const pages = [];
+ 
+      
+      const rangeSize = 5; // Number of page indication APPLIED
+      const halfRange = Math.floor(rangeSize / 2); // BY DEFAOUFLT 2
+      let start = Math.max(1, page - halfRange); 
+      let end = start + rangeSize - 1;
+    
+      // Adjust the range if it exceeds totalPages
+      if (end > totalPages) {
+        end = totalPages;
+        start = Math.max(1, end - rangeSize + 1); // Ensure the range size is maintained
+      }
+
+
+      for (let i = start; i <= end; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => handlePageChange(i)}
+            disabled={page === i}
+            
+          >
+            {i}
+          </button>
+        );
+      }
+
+      
+      return pages;
+    };
+
+    async function handleFilter() {
+    
+      if (!startDate) {
+        setStartDate(formattedStartDate)
+      }
+      if (!endDate){
+        setEndDate(formattedTommorow);
+      }
+
+
+
+
+
+
+
+      try {
+        console.log("working on filtering start from: ",startDate);
+        console.log("working on filtering ends: ",endDate);
+        setLoading(true);
+        const response = await api.get('/transactions', {
+          params: {
+            id: selectedUser,
+            date1: startDate,   // pass parameters
+            date2: endDate,     // pass 
+            page:page,
+            pagesize:pageSize,
+          },
+        });
+        settotalPages(Math.ceil(response.data.totalRecords/pageSize));
+        console.log(totalPages)
+        setTransactions(response.data.transactions);
+        
+      } catch (err) {
+        alert('Failed to filter');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
 
     useEffect(() => {
       async function fetchTransactions() {
@@ -41,10 +148,56 @@ function Transactions() {
           setLoading(false);
         }
       }
+
+      async function fetchUsers() {
+        try {
+          const response = await api.get('/users');
+          setUsers(response.data);
+        } catch (err) {
+          setUsers([]);
+        }
+      }
+  
+      fetchUsers();
       fetchTransactions();
     }, []);
   
-    const handleFetchByUser = async () => {
+    useEffect(() => {
+      setPage(1)
+      handleFilter();
+    }, [selectedUser,startDate,endDate]);
+
+    useEffect(() => {
+      handleFilter();
+    }, [page]);
+
+
+
+
+
+
+
+    const handleNextPage = () =>{
+      if(page<totalPages){
+        setPage(page+1);
+      }
+    }
+
+    const handlePreviousPage = () =>{
+      if(page>1){
+        setPage(page-1);
+      }
+    }
+
+    const handlePageChange = (i) =>{
+      if(i>=1 && i<=totalPages){
+        setPage(i);
+      }
+    }
+
+
+
+    const handleFetchByUser = async () => { 
       if (!isvalid(userId)) {
         alert('Please enter a user ID.');
         return;
@@ -100,6 +253,7 @@ function Transactions() {
         }
       };
 
+
       const handleTransactionClick = (transaction) => {
         setSelectedTransaction(transaction); // Set selected transaction
       };
@@ -115,33 +269,39 @@ function Transactions() {
       <div>
         <h1>Transactions</h1>
         <div>
-          <input
-            type="number"
-            placeholder="Enter User ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
-          <button onClick={handleFetchByUser}>Fetch Transactions by User</button>
-          <button onClick={handleFetchByNoUser}>Fetch Non-user Transactions</button>
-        </div>
+        <label>User:</label>
+        <select
+          value={selectedUser}
+          onChange={(e) => setSelectedUser(e.target.value)}
+        >
+          <option value="all_users">All Users</option>
+          <option value="non_user">Non User</option>
+          {users.map((user) => (
+
+            <option key={user.id} value={user.id}>
+              {user.firstname} {user.lastname}
+            </option>
+          ))}
+        </select>
+      </div>
         <div>
+        <label>From:</label>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
+        <label>To:</label>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <button onClick={handleFilterByDate}>Filter Transactions by Date</button>
       </div>
         <table>
           <thead>
             <tr>
-              <th>Transaction ID</th>
-              <th>User ID</th>
+              <th>Customer Name</th>
               <th>Date</th>
               <th>Time</th>
               <th>Amount</th>
@@ -158,8 +318,11 @@ function Transactions() {
                 <tr key={transaction.id} 
                 onClick={() => handleTransactionClick(transaction)}
                 >
-              <td>{transaction.id}</td>
-              {transaction.userid ?<td>{transaction.userid}</td> :<td>N/A</td> }
+              {transaction.userid ?<td>
+                <Username
+          userid={transaction.userid}
+        />
+                </td> :<td>N/A</td> }
               <td>{tranactionDate}</td>
               <td>{tranactiontime_}</td>
               <td>{transaction.amount}</td>
@@ -175,6 +338,21 @@ function Transactions() {
           onClose={closeModal}
         />
       )}
+            <div>
+        <button
+          onClick={handlePreviousPage}
+          disabled={page <= 1} 
+        >
+          Previous Page
+        </button>
+        {renderPageNumbers()}
+        <button onClick={handleNextPage} disabled={page >= totalPages}>
+          Next Page
+        </button>
+        
+          {totalPages>0 ? <p>Page {page} of {totalPages}</p>:<p>No Results</p>}
+          
+      </div>
       </div>
   
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import DialogBox from './DialogBox';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-
+import Header from '../Header/Header';
 
 function Customers() {
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -74,7 +74,7 @@ function Customers() {
 
   return (
     <div>
-      <h1>Customers</h1>
+      <Header headtext ="Customers"  />
       <button onClick={handleAddCustomer}>Add New Customer</button>
       <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
       <table>

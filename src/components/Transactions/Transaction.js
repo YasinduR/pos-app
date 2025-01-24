@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import TransactionDetails from '../TransactionDetails/TransactionDetails';
-
+import Header from '../Header/Header';
 
 function Username({userid}){
   const [user, setUser] = useState(null);
@@ -267,7 +267,7 @@ function Transactions() {
   
     return (
       <div>
-        <h1>Transactions</h1>
+        <Header headtext ="Products"  />
         <div>
         <label>User:</label>
         <select

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
+import { useAlert } from '../../context/AlertContext';
+import Header from '../Header/Header';
 
 function LogTransaction() {
   const [username, setUsername] = useState('');
@@ -11,6 +13,7 @@ function LogTransaction() {
   const [quantity, setQuantity] = useState(1);
   const [amount, setamount] = useState(0);
   const [message, setMessage] = useState('');
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     // Fetch available products from the API
@@ -29,6 +32,7 @@ function LogTransaction() {
         setUsers(response.data);
       } catch (err) {
         setMessage('Failed to fetch products.');
+
       }
     }
 
@@ -54,12 +58,18 @@ function LogTransaction() {
 
   const handleAddToCart = () => {
     const product = products.find((prod) => prod.id === selectedProduct);
-    if (!selectedProduct || quantity <= 0) {
-      alert('Please select a valid product and quantity.');
+    if (!selectedProduct) {
+      showAlert('Please select a product.','Ok');
+      return;
+    }
+    else if(quantity <= 0 ||!Number.isInteger(quantity)){
+      showAlert('Please select a valid quantity.','Ok');
+      setQuantity(1);
       return;
     }
     else if (product.stock < quantity){
-      alert('Product is not availble from requested quantity');
+      showAlert('Product is not availble from requested quantity','Ok');
+      setQuantity(product.stock);
       return;
     }
     console.log(selectedProduct)
@@ -116,13 +126,13 @@ function LogTransaction() {
       setQuantity(1);
       setCart([])
     } catch (err) {
-      alert('Failed to log transaction.');
+      showAlert('Failed to log transaction.','ok');
     }
   };
 
   return (
     <div>
-      <h1>Log Transaction</h1>
+        <Header headtext ="Log Transaction"  />
       <div>
         <label>User:</label>
         <select

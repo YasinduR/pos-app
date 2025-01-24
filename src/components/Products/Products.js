@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import api from '../../api';
 import DialogBox from './DialogBox';
-import styles from './products.module.css'
+import styles from './products.module.css';
+import Header from '../Header/Header';
 
 function ImageBox({ product}) {  // ImageBox of a product
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -61,6 +62,8 @@ function Products() {
   const [editProduct, setEditProduct] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isNewProduct, setIsNewProduct] = useState(false);
+  
+
 
   useEffect(() => {
     async function fetchProducts() {
@@ -139,9 +142,8 @@ function Products() {
 
   return (
     <div>
-      <h1>Products</h1>
+      <Header headtext ="Products"  />
       <button onClick={handleAddProduct}>Add New Product</button>
-      <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
       <table>
         <thead>
           <tr>

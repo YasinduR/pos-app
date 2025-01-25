@@ -1,6 +1,7 @@
 import '../../styles/DialogBox.css';
 import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
+import DragDropUpload from './DragAndDrop';
 
 function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   const { showAlert } = useAlert();
@@ -53,6 +54,12 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
       setErrors((prev) => ({ ...prev, [changedField]: error }));
     }
   }, [changedField, product]);
+
+
+  const handleImageUpload = (url) => {
+    console.log(url)
+    setProduct((prev) => ({ ...prev, images: prev.images ? `${prev.images},${url}` : url }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -159,16 +166,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
             />
             {errors.special_price && <small className="error">{errors.special_price}</small>}
           </label>
-          <label>
-            Images (comma-separated URLs):
-            <input
-              type="text"
-              name="images"
-              value={product.images}
-              onChange={handleChange}
-              placeholder="Optional"
-            />
-          </label>
+
+          <DragDropUpload onUpload={handleImageUpload} productId={product.id}/>
           <div className="dialog-actions">
             <button type="button" onClick={handleSave}>
               Save

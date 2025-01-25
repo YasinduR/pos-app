@@ -1,0 +1,24 @@
+.drag-drop-zone {
+    width: 100%; /* Full width */
+    max-width: 400px; /* Cap the width at 400px */
+    height: 200px; /* Set a fixed height */
+    border: 2px dashed #4caf50; /* Dashed border */
+    border-radius: 10px; /* Rounded corners */
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    color: #4caf50; /* Green text color */
+    font-size: 16px; /* Font size for the text */
+    cursor: pointer; /* Pointer cursor */
+    background-color: #f9f9f9; /* Light gray background */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transition */
+  }
+  
+  .drag-drop-zone p {
+    margin: 0; /* Remove default margin from the text */
+  }
+  
+  .drag-drop-zone.dragging {
+    background-color: #e8f5e9; /* Light green background while dragging */
+    border-color: #388e3c; /* Darker green border */
+  }

@@ -44,15 +44,6 @@ function ImageBox({ product}) {  // ImageBox of a product
   );
 }
 
-
-
-
-
-
-
-
-
-
 function Products() {
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -63,7 +54,6 @@ function Products() {
   const [showDialog, setShowDialog] = useState(false);
   const [isNewProduct, setIsNewProduct] = useState(false);
   
-
 
   useEffect(() => {
     async function fetchProducts() {
@@ -152,7 +142,7 @@ function Products() {
             <th>Special price</th>
             <th>Stock</th>
             <th>Description</th>
-            <th>Image_url</th>
+            <th>Image</th>
             <th colspan="2">Actions</th>
             
           </tr>

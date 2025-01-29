@@ -2,9 +2,14 @@ import '../../styles/DialogBox.css';
 import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
 import DragDropUpload from './DragAndDrop';
+import s3 from '../../aws/aws-config';
+
 
 function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   const { showAlert } = useAlert();
+  const [isAddingImages,setisAddingImages] = useState(false);
+  const [imageFiles,setImages] = useState([]);
+  const [imagesUploaded, setImagesUploaded] = useState(false); // TO ENSURE PRODUCT SAVE AFTER THE IMAGES ARE UPLOADED
 
   const [product, setProduct] = useState({
     name: '',
@@ -12,7 +17,7 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     stock: '',
     price: '',
     special_price: '',
-    images: '',
+    images: [],
   });
 
   const [errors, setErrors] = useState({
@@ -25,6 +30,18 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   });
 
   const [changedField, setChangedField] = useState(null);
+
+  useEffect(() => {
+    if (imagesUploaded) {
+      onSave(product); // Ensure `onSave` runs only after the images uploaded to the cloud and url saved on product.image
+      onClose();
+    }
+  }, [imagesUploaded]);
+
+
+
+
+
 
   useEffect(() => {
     if (isOpen) {
@@ -45,7 +62,10 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         images: null,
       });
       setChangedField(null);
+      setImages([]);
+      setImagesUploaded(false)
     }
+
   }, [isOpen, initialProduct]);
 
   useEffect(() => {
@@ -55,10 +75,62 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     }
   }, [changedField, product]);
 
+ 
+  const handleImageUploadCancel = () => {
+    setisAddingImages(false);
+  };
 
-  const handleImageUpload = (url) => {
-    console.log(url)
-    setProduct((prev) => ({ ...prev, images: prev.images ? `${prev.images},${url}` : url }));
+  const handleImageUploading = () => {
+    setisAddingImages(true);
+  };
+
+  const handleImageUpload = (image_files) => {
+    setImages(image_files)
+    console.log(imageFiles)
+    setisAddingImages(false);
+  };
+
+
+  const handleImagesUploadtoAws = async () => { // image upload to the aws
+    const uploadedFiles = [];
+    if (imageFiles.length > 0) {
+    const folderPath = `products/`;
+    for (const fileObj of imageFiles) {
+      const { id, file } = fileObj; // Use the generated `id` as the file name
+  
+      const params = {
+        Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
+        Key: `${folderPath}${id}${file.name.slice(file.name.lastIndexOf("."))}`, // Use `id` as the filename
+        Body: file,
+        ContentType: file.type,
+      };
+  
+      try {
+        const data = await s3.upload(params).promise(); // Use promise-based upload
+        console.log("Upload successful:", data.Location);
+        uploadedFiles.push(data.Location); // Collect uploaded file URLs
+        
+      } catch (err) {
+        console.error("Upload failed:", err);
+        alert(`Error uploading file: ${file.name}`);
+        return; // Exit on error
+      }
+    }}
+  
+    if (uploadedFiles.length > 0) {
+      console.log(uploadedFiles);
+      setProduct((prev) => {
+        const updatedProduct = {
+          ...prev,
+          images: [...(prev.images || []), ...uploadedFiles],
+        };
+        console.log( updatedProduct); // Correct way to check update
+        return updatedProduct;
+      });
+      //alert("Upload complete!");
+      console.log(product)
+      setImagesUploaded(true); // Trigger `useEffect`=>  and save the product
+    }
   };
 
   const handleChange = (e) => {
@@ -67,10 +139,17 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     setChangedField(name);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (validateAllFields()) {
-      onSave(product);
-      onClose();
+      if (imageFiles.length > 0) {
+        // Upload images to AWS
+        await handleImagesUploadtoAws();
+
+      }
+      else{
+        onSave(product);
+        onClose();
+      }      
     } else {
       showAlert('Please fix the errors before submitting.', 'error');
     }
@@ -166,8 +245,16 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
             />
             {errors.special_price && <small className="error">{errors.special_price}</small>}
           </label>
+          <div style={{ display: "inline" }}>
+          <button type="button" onClick={handleImageUploading}>
+              Addimages
+            </button>
+            {imageFiles.length+` images added` }
+          </div>
+      
 
-          <DragDropUpload onUpload={handleImageUpload} productId={product.id}/>
+            {isAddingImages &&
+          <DragDropUpload onUpload={handleImageUpload} cancelUpload={handleImageUploadCancel} imageFiles={imageFiles} />}
           <div className="dialog-actions">
             <button type="button" onClick={handleSave}>
               Save

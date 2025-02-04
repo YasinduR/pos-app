@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import Customers from './components/Customers/Customers';
 import Products from './components/Products/Products';
 import Transactions from './components/Transactions/Transaction';
+import Categories from './components/Categories/Categories';
 
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
@@ -36,6 +37,12 @@ const App = () => {
         <ProtectedRoute>
             <LogTransaction/>
         </ProtectedRoute>   },
+    { path: '/categories', 
+      element:             
+      <ProtectedRoute>
+          <Categories/>
+      </ProtectedRoute>   },
+
   ]);
   return routes;
 };

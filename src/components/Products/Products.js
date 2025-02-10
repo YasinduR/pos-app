@@ -141,7 +141,9 @@ function Products() {
             <th>Price</th>
             <th>Special price</th>
             <th>Stock</th>
+            <th>Unit</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Image</th>
             <th colspan="2">Actions</th>
             
@@ -151,10 +153,13 @@ function Products() {
           {products.map((product) => (
             <tr key={product.id}>
               <td>{product.name}</td>
+              
               <td>{product.price}</td>
               <td>{product.special_price}</td>
               <td>{product.stock}</td>
+              <td>{product.unit}</td>
               <td>{product.description}</td>
+              <td>{product.category}</td>
 
         
               <td>

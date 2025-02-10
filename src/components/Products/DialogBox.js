@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
 import DragDropUpload from './DragAndDrop';
 import s3 from '../../aws/aws-config';
+import api from '../../api';
 
 
 function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
@@ -10,6 +11,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   const [isAddingImages,setisAddingImages] = useState(false);
   const [imageFiles,setImages] = useState([]);
   const [imagesUploaded, setImagesUploaded] = useState(false); // TO ENSURE PRODUCT SAVE AFTER THE IMAGES ARE UPLOADED
+  const [categories, setCategories] = useState([]); // Store fetched categories
+  const [units,setUnits] = useState(['nos','kg']); // Store fetched categories
 
   const [product, setProduct] = useState({
     name: '',
@@ -18,6 +21,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     price: '',
     special_price: '',
     images: [],
+    category:null,
+    unit:null
   });
 
   const [errors, setErrors] = useState({
@@ -27,9 +32,28 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     price: null,
     special_price: null,
     images: null,
+    category:null,
+    unit:null
   });
 
   const [changedField, setChangedField] = useState(null);
+
+  // Fetch categories from
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/cats');
+        setCategories(response.data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+
+
 
   useEffect(() => {
     if (imagesUploaded) {
@@ -52,6 +76,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         price: '',
         special_price: '',
         images: '',
+        category:null,
+        unit:null
       });
       setErrors({
         name: null,
@@ -60,6 +86,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         price: null,
         special_price: null,
         images: null,
+        category:null,
+        unit:null
       });
       setChangedField(null);
       setImages([]);
@@ -173,6 +201,10 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         return value === '' || isNaN(value) || parseFloat(value) > parseFloat(product.price)
           ? 'Special price must be equal to or less than the price.'
           : null;
+      case 'category':
+        return value === null ? 'A category is required.' : null;
+      case 'unit':
+          return value === null ? 'An unit is required.' : null;
       default:
         return null;
     }
@@ -212,6 +244,27 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
               onChange={handleChange}
             />
             {errors.description && <small className="error">{errors.description}</small>}
+          </label>
+          <label>
+            Category:
+            <select name="category" value={product.category} onChange={handleChange}>
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+            {errors.category && <small className="error">{errors.category}</small>}
+          </label>
+
+          <label>
+            Unit:
+            <select name="unit" value={product.unit} onChange={handleChange}>
+              <option value="">Select an unit</option>
+              {units.map((unit) => (
+                <option key={unit} value={unit}>{unit}</option>
+              ))}
+            </select>
+            {errors.category && <small className="error">{errors.category}</small>}
           </label>
           <label>
             Stock:

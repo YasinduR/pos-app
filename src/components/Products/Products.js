@@ -103,6 +103,8 @@ function Products() {
   };
 
   const handleEditProduct = (product) => { // Perform through dialog box
+    
+    
     setEditProduct(product);
     setIsNewProduct(false);
     setShowDialog(true);

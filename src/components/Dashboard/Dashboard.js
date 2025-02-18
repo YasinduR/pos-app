@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminContext } from '../../context/AdminContext';
 import  Navigator from '../Navigator/Navigator';
+import Summary from './Summary';
 
 function Dashboard() {
   const { adminData } = useAdminContext();  // Access adminData from context
@@ -17,6 +18,11 @@ function Dashboard() {
       <p>Name: {adminData.firstname} {adminData.lastname}</p>
       <p>Email: {adminData.email}</p>
       {/* Display other admin data here */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', alignItems: 'center', position: 'relative' }}>
+  <Summary type='Income' />
+  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '2px', height: '80%', backgroundColor: '#000' }} />
+  <Summary type='Expense' />
+</div>
     </div>
   );
 }

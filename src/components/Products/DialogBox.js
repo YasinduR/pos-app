@@ -10,7 +10,9 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   const { showAlert } = useAlert();
   const [isAddingImages,setisAddingImages] = useState(false);
   const [imageFiles,setImages] = useState([]);
+  const [oldImages,setOldImages] = useState([]); // indicate images already under the exisiting product
   const [imagesUploaded, setImagesUploaded] = useState(false); // TO ENSURE PRODUCT SAVE AFTER THE IMAGES ARE UPLOADED
+  const [imagesDeleted, setImagesDeleted] = useState(false); // TO ENSURE PRODUCT SAVE AFTER THE IMAGES ARE UPLOADED
   const [categories, setCategories] = useState([]); // Store fetched categories
   const [units,setUnits] = useState(['nos','kg']); // Store fetched categories
 
@@ -38,6 +40,18 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
 
   const [changedField, setChangedField] = useState(null);
 
+useEffect(()=>{
+ if(initialProduct){
+  setOldImages(initialProduct.images); // update links of exisiting images
+ }
+ setImagesUploaded(false);
+ setImagesDeleted(false); // Reset image uploaded and removed state
+
+
+},[initialProduct]);
+
+
+
   // Fetch categories from
   useEffect(() => {
     const fetchCategories = async () => {
@@ -52,17 +66,40 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     fetchCategories();
   }, []);
 
-
-
+// deleted images => save new images => save product
+  useEffect(()=>{
+    if(imagesDeleted){
+      handleImagesUploadtoAws() // Start uploading after completion of delete
+    }
+    },[imagesDeleted]);
 
   useEffect(() => {
-    if (imagesUploaded) {
-      onSave(product); // Ensure `onSave` runs only after the images uploaded to the cloud and url saved on product.image
-      onClose();
-    }
-  }, [imagesUploaded]);
+   if (imagesUploaded) { 
+   onSave(product); 
+   setImagesUploaded(false);
+   setImagesDeleted(false);
+   onClose();
+  }
+}, [imagesUploaded]);
+///
 
+const handleSave = async () => {
+  if (!validateAllFields()) {
+    showAlert('Please fix the errors before submitting.', 'error');
+    return;
+  }
+  handleImagesRemovefromAws() // Trigger Useeffect to handle upload then save products
+  .catch((err) => {
+    console.error('Error during image handling:', err);
+    showAlert('An error occurred during the process.', 'error');
+  });
+};
+///////
 
+useEffect(() => {
+  // Log the updated product when state changes
+  console.log("Updated Product:", product);
+}, [product]);
 
 
 
@@ -119,6 +156,47 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   };
 
 
+  const handleImagesRemovefromAws = async () => {
+    if (!initialProduct || !initialProduct.images){setImagesDeleted(true)}; // No images to remove
+  
+    const filestoberemoved = initialProduct.images.filter(x => !oldImages.includes(x));
+    if (filestoberemoved.length === 0) {setImagesDeleted(true)}; // No images to remove
+  
+    // Update product state immediately to remove images from UI
+    setProduct(prevProduct => {
+      const updatedImages = prevProduct.images.filter(img => !filestoberemoved.includes(img));
+      console.log("Images to be removed ", updatedImages);
+      return { ...prevProduct, images: updatedImages };
+    })
+
+  // Step 2: Wait for state to be updated using setTimeout to ensure it runs after render
+  setTimeout(async () => {
+    // Proceed with AWS deletions after the state has been updated
+    for (const fileUrl of filestoberemoved) {
+      const fileName = fileUrl.split('/').pop(); // Extract file name from URL
+      const params = {
+        Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
+        Key: `products/${fileName}` // Assuming images are stored in the 'products/' folder
+      };
+
+      try {
+        await s3.deleteObject(params).promise();
+        console.log(`Deleted: ${fileName}`);
+      } catch (err) {
+        console.error(`Failed to delete ${fileName}:`, err);
+        alert(`Error deleting file: ${fileName}`);
+      }
+    }
+
+    console.log("After REMOVING", product);
+    setImagesDeleted(true);
+
+  }, 0); // Execute after the current call stack is cleared (after state update)
+  };
+
+
+
+
   const handleImagesUploadtoAws = async () => { // image upload to the aws
     const uploadedFiles = [];
     if (imageFiles.length > 0) {
@@ -144,6 +222,10 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         return; // Exit on error
       }
     }}
+    else{
+      console.log("AfterUPLOADING",product)
+      setImagesUploaded(true); // Trigger `useEffect`=>  and save the product
+    }
   
     if (uploadedFiles.length > 0) {
       console.log(uploadedFiles);
@@ -155,10 +237,10 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
         console.log( updatedProduct); // Correct way to check update
         return updatedProduct;
       });
-      //alert("Upload complete!");
       console.log(product)
       setImagesUploaded(true); // Trigger `useEffect`=>  and save the product
     }
+   // console.log("AfterUPLOADING",product)
   };
 
   const handleChange = (e) => {
@@ -167,21 +249,7 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
     setChangedField(name);
   };
 
-  const handleSave = async () => {
-    if (validateAllFields()) {
-      if (imageFiles.length > 0) {
-        // Upload images to AWS
-        await handleImagesUploadtoAws();
 
-      }
-      else{
-        onSave(product);
-        onClose();
-      }      
-    } else {
-      showAlert('Please fix the errors before submitting.', 'error');
-    }
-  };
 
   const validateField = (name, value) => {
     switch (name) {
@@ -247,7 +315,7 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
           </label>
           <label>
             Category:
-            <select name="category" value={product.category} onChange={handleChange}>
+            <select name="category" value={product.category|| ""} onChange={handleChange}>
               <option value="">Select a category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -258,8 +326,8 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
 
           <label>
             Unit:
-            <select name="unit" value={product.unit} onChange={handleChange}>
-              <option value="">Select an unit</option>
+            <select name="unit" value={product.unit || ""} onChange={handleChange}>
+              <option value=''>Select an unit</option>
               {units.map((unit) => (
                 <option key={unit} value={unit}>{unit}</option>
               ))}
@@ -300,14 +368,14 @@ function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
           </label>
           <div style={{ display: "inline" }}>
           <button type="button" onClick={handleImageUploading}>
-              Addimages
+          {(oldImages.length+imageFiles.length) > 0 ? "Add/Remove Images" : "Add Images"}
             </button>
-            {imageFiles.length+` images added` }
+            {(oldImages.length+imageFiles.length)+` images added` }
           </div>
       
 
             {isAddingImages &&
-          <DragDropUpload onUpload={handleImageUpload} cancelUpload={handleImageUploadCancel} imageFiles={imageFiles} />}
+          <DragDropUpload onUpload={handleImageUpload} cancelUpload={handleImageUploadCancel} imageFiles={imageFiles}  oldImages={oldImages} setOldImages={setOldImages}/>}
           <div className="dialog-actions">
             <button type="button" onClick={handleSave}>
               Save

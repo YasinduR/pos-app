@@ -12,7 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 
 
-// ProtectedRoute => to ensure required adminstrative level
+// ProtectedRoute => to ensure required adminstrative level  
 const App = () => {
   const routes = useRoutes([
     { path: '/', element: <AdminLogin /> },

@@ -10,7 +10,7 @@ import Categories from './components/Categories/Categories';
 
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
-
+import Suppliers from './components/Supplier/Supplier'
 
 // ProtectedRoute => to ensure required adminstrative level
 const App = () => {
@@ -42,6 +42,11 @@ const App = () => {
       <ProtectedRoute>
           <Categories/>
       </ProtectedRoute>   },
+          { path: '/suppliers', 
+            element:             
+            <ProtectedRoute>
+               <Suppliers/>
+            </ProtectedRoute>   }
 
   ]);
   return routes;

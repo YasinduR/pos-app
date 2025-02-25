@@ -10,36 +10,44 @@ import Categories from './components/Categories/Categories';
 
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
+import Users from './components/Users/Users';
 
 
 // ProtectedRoute => to ensure required adminstrative level  
 const App = () => {
+  const allRoles = ['admin', 'cashier', 'stock-manager']; // ROLES
+  const adminRoles = ['admin']; // ROLES
   const routes = useRoutes([
     { path: '/', element: <AdminLogin /> },
     { path: '/dashboard', element: <Dashboard /> },
+    { path: '/users', 
+      element:             
+    <ProtectedRoute allowedRoles={adminRoles}> 
+      <Users />
+    </ProtectedRoute> },
     { path: '/customers', 
       element:             
-    <ProtectedRoute> 
+    <ProtectedRoute allowedRoles={allRoles}> 
       <Customers />
     </ProtectedRoute> },
     { path: '/products', 
       element:             
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={allRoles}>
         <Products />
       </ProtectedRoute>   },
     { path: '/transactions', 
         element:             
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={allRoles}>
             <Transactions />
         </ProtectedRoute>   },
     { path: '/logtransactions', 
         element:             
-        <ProtectedRoute>
+        <ProtectedRoute allowedRoles={allRoles}>
             <LogTransaction/>
         </ProtectedRoute>   },
     { path: '/categories', 
       element:             
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={allRoles}>
           <Categories/>
       </ProtectedRoute>   },
 

@@ -7,12 +7,14 @@ import Customers from './components/Customers/Customers';
 import Products from './components/Products/Products';
 import Transactions from './components/Transactions/Transaction';
 import Categories from './components/Categories/Categories';
+import GRN from './components/GRN/GRN'
+import Supplier from './components/suppliers/suppliers';
 
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 
 
-// ProtectedRoute => to ensure required adminstrative level  
+// ProtectedRoute => to ensure required adminstrative level   
 const App = () => {
   const routes = useRoutes([
     { path: '/', element: <AdminLogin /> },
@@ -42,6 +44,17 @@ const App = () => {
       <ProtectedRoute>
           <Categories/>
       </ProtectedRoute>   },
+       { path: '/GRN', 
+        element:             
+        <ProtectedRoute>
+            <GRN/>
+        </ProtectedRoute>   },
+         { path: '/allSuppliers', 
+          element:             
+          <ProtectedRoute>
+              <Supplier/>
+          </ProtectedRoute>   },
+  
 
   ]);
   return routes;

@@ -11,6 +11,10 @@ function Navigator() {
       <button onClick={() => navigate('/transactions')}>Transactions Data</button>
       <button onClick={() => navigate('/logtransactions')}>Log Transactions</button>
       <button onClick={() => navigate('/categories')}>Categories</button>
+      <button onClick={() => navigate('/allSuppliers')}>Suppliers</button>
+      <button onClick={() => navigate('/GRN')}>Supplier Orders</button>
+      {/* <button >Supplier Transactions</button> */}
+    
     </nav>
   );
 }

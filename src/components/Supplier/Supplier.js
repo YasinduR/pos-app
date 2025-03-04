@@ -1,122 +1,129 @@
-// Edit this acc to customer page
-
-import React, { useEffect, useState } from 'react';
-import api from '../../api';
-import DialogBox from './DialogBox';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import React, { useEffect, useState } from 'react'
 import Header from '../Header/Header';
+import api from '../../api';
+import { useAlert } from '../../context/AlertContext';
+import DialogBox from './DialogBox';
 
-function Suppliers() {
-  const navigate = useNavigate(); // Initialize useNavigate hook
+export default function Supplier() {
 
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [editCustomer, setEditCustomer] = useState(null);
-  const [showDialog, setShowDialog] = useState(false);
-  const [isNewCustomer, setIsNewCustomer] = useState(false);
+  const[suppliers,setSuppliers]=useState([]);
+  const[showDialog,setShowDialog]=useState(false);
+  const[isNewSupplier,setIsNewSupplier]=useState(false);
+  const[editSupplier,setEditSupplier]=useState(null)
+  const {showAlert}=useAlert()
 
-  useEffect(() => {
-    async function fetchCustomers() {
-      try {
-        const response = await api.get('/users');
-        setCustomers(response.data);
-      } catch (err) {
-        setError('Failed to load customer data.');
-      } finally {
-        setLoading(false);
-      }
+  const fetchAllSuppliers=async()=>{
+
+    const Response=await api.get('/allSuppliers')
+    console.log(Response.data);
+    
+    if(Response.data.length>=0){
+      setSuppliers(Response.data)
     }
-    fetchCustomers();
-  }, []);
+    else{
+      showAlert("Error while loading suppliers")
+    }
 
-  const handleSaveCustomer = async (customer) => {
+  }
+  useEffect(()=>{
+    fetchAllSuppliers()
+  },[])
+
+  const handleCreateSupplier=async(supplier)=>{
+    setShowDialog(true);
+    setIsNewSupplier(true);
+    setEditSupplier(false)
+    console.log('handle create supplier function called');
+    
+  }
+
+  const handleEditSupplier=async(supplier)=>{
+    setEditSupplier(supplier);
+    setIsNewSupplier(false);
+    setShowDialog(true)
+   
+    
+  }
+
+  const handleSaveSupplier=async(supplier)=>{
+    console.log('Handle save supplier');
+    console.log(supplier);
     try {
-      if (editCustomer) {
-        // Update existing customer
-        await api.put(`/users/${editCustomer.id}`, customer);
-        setCustomers((prev) =>
-          prev.map((c) => (c.id === editCustomer.id ? customer : c))
-        );
-      } else {
-        // Create new customer
-        const response = await api.post('/users', customer);
-        setCustomers((prev) => [...prev, response.data]);
-      }
-    } catch (err) {
-      alert('Failed to save customer.');
-    }
-  };
-
-  const handleEditCustomer = (customer) => {
-    setEditCustomer(customer);
-    setIsNewCustomer(false);
-    setShowDialog(true);
-  };
-
-  const handleAddCustomer = () => {
-    setEditCustomer(null);//Set editing instance null 
-    setIsNewCustomer(true);
-    setShowDialog(true);
-  };
+      if(editSupplier){
+        await api.put(`/updateSupplier/${editSupplier.id}`,supplier);
+        setSuppliers((prev)=>prev.map((sup)=>(sup.id===editSupplier.id ? supplier : sup)))
+      }else{
+        //create new supplier
+        const response= await api.post('/suppliers',supplier)
   
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      try {
-        await api.delete(`/users/${id}`);
-        setCustomers(customers.filter((customer) => customer.id !== id));
-      } catch (err) {
-        alert('Failed to delete customer.');
+        setSuppliers((prev)=>[...prev, response.data])
+        fetchAllSuppliers()
       }
+      
+    } catch (error) {
+      console.log('Error while saving new supplier', error);
+      showAlert("Fail to edit the supplier")
     }
-  };
+  }
 
-  if (loading) return <div>Loading customers...</div>;
-  if (error) return <div>{error}</div>;
+  const handleDelete=async(id)=>{
+    if(window.confirm("Are you sure you want to delete this supplier?"))
+      try {
+    await api.delete(`/deleteSupplier/${id}`);
+    setSuppliers(suppliers.filter((supplier)=>supplier.id !==id));
+        
+      } catch (error) {
+        showAlert('Fail to delete supplier')
+        
+      }
+  }
 
   return (
     <div>
-      <Header headtext ="Customers"  />
-      <button onClick={handleAddCustomer}>Add New Customer</button>
-      <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Hometown</th>
-            <th colspan="2">Actions</th>
+    <Header headtext="Suppliers"/>
+    <button style={{marginBottom:'10px'}} onClick={handleCreateSupplier}>Create new supplier</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Phone Number</th>
+          <th>Email</th>
+          <th colSpan="2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {suppliers.map((supplier)=>(
+          <tr key={supplier.id}>
+            <td>{supplier.name}</td>
+            <td>{supplier.address}</td>
+            <td>{supplier.phone}</td>
+            <td>{supplier.email}</td>
+            <td>
+              <button onClick={()=>handleEditSupplier(supplier)}>Edit</button>
+            </td>
+            <td>
+              <button onClick={()=>handleDelete(supplier.id)}>Delete</button>
+            </td>
+
           </tr>
-        </thead>
-        <tbody>
-          {customers.map((customer) => (
-            <tr key={customer.id}>
-              <td>{customer.firstname}</td>
-              <td>{customer.lastname}</td>
-              <td>{customer.email}</td>
-              <td>{customer.address}</td>
-              <td>{customer.hometown}</td>
-              <td>
-                <button onClick={() => handleEditCustomer(customer)}>Edit</button>
-              </td>
-              <td>
-                <button onClick={() => handleDelete(customer.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <DialogBox
-        isOpen={showDialog}
-        onClose={() => setShowDialog(false)}
-        onSave={handleSaveCustomer}
-        initialCustomer={editCustomer}
-        isNewCustomer={isNewCustomer}
-      />
+        ))}
+      </tbody>
+    </table>
+    <DialogBox
+    isOpen={showDialog}
+    onClose={()=>setShowDialog(false)}
+    onSave={handleSaveSupplier} 
+  
+    
+    initialSupplier={editSupplier}
+    isNewSupplier={isNewSupplier}
+    />
+   
+    
     </div>
-  );
+  )
 }
 
-export default Suppliers;

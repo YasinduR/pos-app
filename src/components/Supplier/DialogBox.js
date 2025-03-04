@@ -1,199 +1,235 @@
-// Edit this acc to Supplier page
-import '../../styles/DialogBox.css'
-import React, { useState,useEffect } from 'react';
+import '../../styles/DialogBox.css';
+import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
 
-function DialogBox({ isOpen, onClose, onSave, initialCustomer, isNewCustomer }) {
 
-    const { showAlert } = useAlert();
 
-    const [customer, setCustomer] = useState({
-      firstname: '',
-      lastname: '',
-      email: '',
-      address: '',
-      hometown: '',
-    });
-
-    const [errors, setErrors] = useState({
-      firstname: null,
-      lastname: null,
-      email: null,
-      password: null,
-      confirmpassword:null,
-      address: null,
-      hometown: null,
-    }); // represent errors
+function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) {
+  const { showAlert } = useAlert();
+  console.log('initialsupplier',initialSupplier);
   
-    const [changedField, setChangedField] = useState(null); // RECENTLY UPDATED FIELD
-    useEffect(() => {
-      if (isOpen) {
-        setCustomer(initialCustomer || {
-          firstname: '',
-          lastname: '',
-          email: '',
-          password: '',
-          confirmpassword:'',
-          address: '',
-          hometown: '',
-        });
-        setErrors({
-          firstname: null,
-          lastname: null,
-          email: null,
-          password: null,
-          confirmpassword: null,
-          address: null,
-          hometown: null,
-        });
-        setChangedField(null);
-      }
-    }, [isOpen, initialCustomer]);
 
-    useEffect(() => {
-      if (changedField) {
-        const error = validateField(changedField, customer[changedField]);
-        setErrors((prev) => ({ ...prev, [changedField]: error })); // UPDATE ERRORS RELATED ONLY CHANGED FIELD
-      }
-    }, [changedField, customer]);
-
-
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setCustomer((prev) => ({ ...prev, [name]: value }));
-      setChangedField(name);
-    };
   
-    const handleSave = () => {
-      if (validateAllFields()) {
-        onSave(customer);
-        onClose();
-      } else {
-        showAlert('Please fix the errors before submitting.', 'ok');
-       // alert('Please fix the errors before submitting.');
-      }
-    };
 
-      const validateField = (name, value) => {
-        switch (name) {
-          case 'firstname':
-          case 'lastname':
-            return value.length < 5 ? `${name.replace(/^\w/, (c) => c.toUpperCase())} must be at least 5 characters long.` : null;
-          case 'email':
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return !emailRegex.test(value) ? 'Please enter a valid email address.' : null;
-          case 'password':
-            return isNewCustomer && value.length < 5 ? 'Password must be at least 5 characters long.' : null;
-          case 'confirmpassword':
-            return isNewCustomer && value !== customer.password ? 'Passwords do not match.' : null;
-          default:
-            return null;
-        }
-      };
+  const [supplier, setSupplier] = useState({
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+    contactPersons: [{ name: '', phone: '' }, { name: '', phone: '' }],
+  });
+
+  const [errors, setErrors] = useState({
+    name: null,
+    address: null,
+    email: null,
+    phone: null,
+    contactPersons: null,
+  });
+
+  const[changedField,setChangedField]=useState(null)
+
+
+  useEffect(() => {
+    if (isOpen) {
+      setSupplier(
+        initialSupplier
+          ? {
+              name: initialSupplier.name || '',
+              address: initialSupplier.address || '',
+              email: initialSupplier.email || '',
+              phone: initialSupplier.phone || '',
+              contactPersons: Array.isArray(initialSupplier.contact_persons)
+                ? initialSupplier.contact_persons.map(contact => ({
+                    name: contact.name || '',
+                    phone: contact.phone || '',
+                  }))
+                : [{ name: '', phone: '' }, { name: '', phone: '' }],
+            }
+          : {
+              name: '',
+              address: '',
+              email: '',
+              phone: '',
+              contactPersons: [{ name: '', phone: '' }, { name: '', phone: '' }],
+            }
+      );
   
-        // Function to validate all fields on submit
-  const validateAllFields = () => {
-      const newErrors = {};
-      for (const key in customer) {
-      newErrors[key] = validateField(key, customer[key]);
+      setErrors({
+        name: null,
+        address: null,
+        email: null,
+        phone: null,
+      });
     }
-      setErrors(newErrors);
-      return Object.values(newErrors).every((error) => error === null);
+  }, [isOpen, initialSupplier]);
+
+  useEffect(()=>{
+    if(changedField){
+      const error=validateField(changedField, supplier[changedField]);
+      setErrors((prev)=>({...prev,[changedField]:error}))
+    }
+  },[changedField,supplier])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSupplier((prev) => ({ ...prev, [name]: value }));
+    setChangedField(name);
   };
 
+  const handleContactPersonChange = (index, field, value) => {
+    const updatedContactPersons = [...supplier.contact_persons];
+    updatedContactPersons[index][field] = value;
+    setSupplier((prev) => ({ ...prev, contactPersons: updatedContactPersons }));
+  };
 
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'name':
+        return value.length < 3 ? 'Name must be at least 3 characters long.' : null;
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return !emailRegex.test(value) ? 'Please enter a valid email address.' : null;
+      case 'phone':
+        const phoneRegex = /^[0-9\s+-]+$/;
+        return !phoneRegex.test(value) ? 'Please enter a valid phone number.' : null;
+      default:
+        return null;
+    }
+  };
 
-    if (!isOpen) return null;
+  const validateAllFields = () => {
+    const newErrors = {
+      name: validateField('name', supplier.name),
+      address: validateField('address', supplier.address),
+      email: validateField('email', supplier.email),
+      phone: validateField('phone', supplier.phone),
+    };
+
+    for(const key in supplier){
+      newErrors[key]=validateField(key,supplier[key])
+    }
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => error === null);
+  };
+
+  // const handleSave = () => {
+  //   if (validateAllFields()) {
+  //     const validContacts = supplier.contact_persons.filter(
+  //       (contact) => contact.name.trim() !== '' || contact.phone.trim() !== ''
+  //     );
+
+  //     const supplierData = {
+  //       ...supplier,
+  //       contactPersons: validContacts,
+  //     };
+     
+  //     onSave(supplierData);
+  //     onClose();
+  //   } else {
+  //     showAlert('Please fix the errors before submitting.', 'error');
+  //   }
+  // };
+
+  const handleSave = () => {
+    if (validateAllFields()) {
+      let validContacts = []; 
+      
+      // Ensure contact_persons is always an array and filter only if it's not empty
+      if (Array.isArray(supplier.contactPersons) && supplier.contactPersons.length > 0) {
+        validContacts = supplier.contactPersons.filter(
+          (contact) => contact.name.trim() !== '' || contact.phone.trim() !== ''
+        );
+      }else{
+        showAlert('Please at least add one contact person');
+        return
+      }
+    
+      const supplierData = {
+        ...supplier,
+        contactPersons: validContacts, // Assign the validContacts to the supplier data
+      };
+    
+      onSave(supplierData); // Pass the updated supplier data
+      onClose(); // Close the dialog
+    } else {
+      showAlert('Please fix the errors before submitting.', 'error'); // Show error alert if validation fails
+    }
+  };
   
-    return (
-      <div className="dialog-overlay">
-        <div className="dialog-box">
-          <h2>{isNewCustomer ? 'Add New Customer' : 'Edit Customer'}</h2>
-          <form>
-            <label>
-              First Name:
-              <input
-                type="text"
-                name="firstname"
-                value={customer.firstname}
-                onChange={handleChange}
-              />
-              {errors.firstname && <small className="error">{errors.firstname}</small>}
-            </label>
-            <label>
-              Last Name:
-              <input
-                type="text"
-                name="lastname"
-                value={customer.lastname}
-                onChange={handleChange}
-              />
-              {errors.lastname && <small className="error">{errors.lastname}</small>}
-            </label>
-            <label>
-              Email:
-              <input
-                type="email"
-                name="email"
-                value={customer.email}
-                onChange={handleChange}
-              />
-              {errors.email && <small className="error">{errors.email}</small>}
-            </label>
-            {isNewCustomer && (
-            <>
-              <label>
-                Password:
-                <input
-                  type="password"
-                  name="password"
-                  value={customer.password}
-                  onChange={handleChange}
-                />
-                {errors.password && <small className="error">{errors.password}</small>}
-              </label>
-              <label>
-                Confirm Password:
-                <input
-                  type="password"
-                  name="confirmpassword"
-                  value={customer.confirmpassword}
-                  onChange={handleChange}
-                />
-                {errors.confirmpassword && <small className="error">{errors.confirmpassword}</small>}
-              </label>
-            </>
+  
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="dialog-overlay">
+      <div className="dialog-box">
+        <h2>{isNewSupplier ? 'Add New Supplier' : 'Edit Supplier'}</h2>
+        <button type="button" onClick={onClose}>Cancel</button>
+        <form>
+          <label>
+            Name:
+            <input type="text" name="name" value={supplier.name} onChange={handleChange} />
+            {errors.name && <small className="error">{errors.name}</small>}
+          </label>
+
+          <label>
+            Address:
+            <input type="text" name="address" value={supplier.address} onChange={handleChange} />
+            {errors.address && <small className="error">{errors.address}</small>}
+          </label>
+
+          <label>
+            Email:
+            <input type="email" name="email" value={supplier.email} onChange={handleChange} />
+            {errors.email && <small className="error">{errors.email}</small>}
+          </label>
+
+          <label>
+            Phone:
+            <input type="text" name="phone" value={supplier.phone} onChange={handleChange} />
+            {errors.phone && <small className="error">{errors.phone}</small>}
+          </label>
+
+          <h3>Contact Persons (Optional)</h3>
+           {supplier.contactPersons && supplier.contactPersons.length > 0 ? (
+            supplier.contactPersons.map((contact, index) => (
+              <div key={index}>
+                <label>
+                  Contact Person {index + 1} Name:
+                  <input
+                    type="text"
+                    value={contact.name}
+                    onChange={(e) => handleContactPersonChange(index, 'name', e.target.value)}
+                  />
+                </label>
+                <label>
+                  Contact Person {index + 1} Phone:
+                  <input
+                    type="text"
+                    value={contact.phone}
+                    onChange={(e) => handleContactPersonChange(index, 'phone', e.target.value)}
+                  />
+                </label>
+              </div>
+            ))
+          ) : (
+            <small className="error">No contact persons added.</small>
           )}
-            <label>
-              Address:
-              <input
-                type="text"
-                name="address"
-                value={customer.address}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Hometown:
-              <input
-                type="text"
-                name="hometown"
-                value={customer.hometown}
-                onChange={handleChange}
-              />
-            </label>
-            <div className="dialog-actions">
-              <button type="button" onClick={handleSave}>
-                Save
-              </button>
-              <button type="button" onClick={onClose}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
+
+          <div className="dialog-actions">
+            <button type="button" onClick={handleSave}>
+              Save
+            </button>
+            <button type="button" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-    );
-  }
-  
-  export default DialogBox;
+    </div>
+  );
+}
+
+export default DialogBox;

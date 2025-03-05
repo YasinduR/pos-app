@@ -3,6 +3,7 @@ import api from '../../api';
 import DialogBox from './DialogBox';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import Header from '../Header/Header';
+import { getAuthConfig } from '../../config/authConfig'; // token authentication for api calls
 
 function Users() {
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -18,7 +19,9 @@ function Users() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await api.get('/admin');
+        const config = getAuthConfig(); // token configs
+        // Set the token in the Authorization header
+        const response = await api.get('/admin', config);
         setUsers(response.data);
       } catch (err) {
         setError('Failed to load admin data.');
@@ -29,17 +32,19 @@ function Users() {
     fetchUsers();
   }, []);
 
+  
   const handleSaveUser = async (user) => {
     try {
+      const config = getAuthConfig(); 
       if (editUser) {
         // Update existing customer
-        await api.put(`/admin/${editUser.id}`, user);
+        await api.put(`/admin/${editUser.id}`, user,config);
         setUsers((prev) =>
           prev.map((c) => (c.id === editUser.id ? user : c))
         );
       } else {
         // Create new customer
-        const response = await api.post('/admin', user);
+        const response = await api.post('/admin', user,config);
         setUsers((prev) => [...prev, response.data]);
       }
     } catch (err) {
@@ -61,9 +66,10 @@ function Users() {
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
+      const config = getAuthConfig(); 
       try {
-        await api.delete(`/users/${id}`);
-        setUsers(Users.filter((customer) => customer.id !== id));
+        await api.delete(`/admin/${id}`,config);
+        setUsers(users.filter((customer) => customer.id !== id));
       } catch (err) {
         alert('Failed to delete customer.');
       }

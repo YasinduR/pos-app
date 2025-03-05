@@ -7,7 +7,7 @@ import Customers from './components/Customers/Customers';
 import Products from './components/Products/Products';
 import Transactions from './components/Transactions/Transaction';
 import Categories from './components/Categories/Categories';
-
+import Delivery from './components/Delivery/Delivery';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 import Users from './components/Users/Users';
@@ -45,6 +45,11 @@ const App = () => {
         <ProtectedRoute allowedRoles={allRoles}>
             <LogTransaction/>
         </ProtectedRoute>   },
+            { path: '/delivery', 
+              element:             
+              <ProtectedRoute allowedRoles={allRoles}>
+                  <Delivery/>
+              </ProtectedRoute>   },
     { path: '/categories', 
       element:             
       <ProtectedRoute allowedRoles={allRoles}>

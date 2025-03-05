@@ -3,6 +3,7 @@ import api from '../../api';
 import DialogBox from './DialogBox';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import Header from '../Header/Header';
+import { getAuthConfig } from '../../config/authConfig'; // token authentication for api calls
 
 function Categories() {
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -17,7 +18,9 @@ function Categories() {
   useEffect(() => {
     async function fetchCats() {
       try {
-        const response = await api.get('/cats');
+
+        const config = getAuthConfig(); // token configs
+        const response = await api.get('/cats',config);
         setCats(response.data);
       } catch (err) {
         setError('Failed to load cat data.');
@@ -30,15 +33,16 @@ function Categories() {
 
   const handleSaveCat = async (cat) => {
     try {
+      const config = getAuthConfig(); // token configs
       if (editCat) {
         // Update existing customer
-        await api.put(`/cats/${editCat.id}`, cat);
+        await api.put(`/cats/${editCat.id}`, cat,config);
         setCats((prev) =>
           prev.map((c) => (c.id === editCat.id ? cat : c))
         );
       } else {
         // Create new customer
-        const response = await api.post('/cats', cat);
+        const response = await api.post('/cats', cat,config);
         setCats((prev) => [...prev, response.data]);
       }
     } catch (err) {
@@ -60,8 +64,9 @@ function Categories() {
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
+      const config = getAuthConfig(); // token configs
       try {
-        await api.delete(`/cats/${id}`);
+        await api.delete(`/cats/${id}`,config);
         setCats(cats.filter((cat) => cat.id !== id));
       } catch (err) {
         alert('Failed to delete category.');

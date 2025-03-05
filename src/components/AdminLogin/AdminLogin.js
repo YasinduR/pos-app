@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdminContext } from '../../context/AdminContext';  // Import setadmin
 import api from '../../api'; // Import the Axios instance
 
+
 function AdminLogin() {
   const [email, setEmail] = useState('yasindu@example.com');
   const [password, setPassword] = useState('12345');
@@ -17,7 +18,11 @@ function AdminLogin() {
     try {
 
       const response = await api.post('/admin/login', { email, password }); // Call the /login endpoint
-      setAdminData(response.data)
+      
+      setAdminData(response.data.user)
+      // Save the token in localStorage
+      localStorage.setItem('token', response.data.token);
+
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);

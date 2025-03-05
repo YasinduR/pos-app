@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
+import { getAuthConfig } from '../../config/authConfig';
 
 
 function TransactionDetails({ transaction, onClose }) {
@@ -10,12 +11,13 @@ function TransactionDetails({ transaction, onClose }) {
     // Fetch available products from the API
 
     async function fetchUser() {
+      const config  = getAuthConfig();
       try {
         if(!transaction.userid){
           setUser(null);
           throw new Error();
         }
-        const response = await api.get(`/users/${transaction.userid}`);
+        const response = await api.get(`/users/${transaction.userid}`,config);
         setUser(response.data);
         console.log(user);
       } catch (err) {

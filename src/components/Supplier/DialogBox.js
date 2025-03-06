@@ -137,24 +137,24 @@ function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) 
       let validContacts = []; 
       
       // Ensure contact_persons is always an array and filter only if it's not empty
-      if (Array.isArray(supplier.contactPersons) && supplier.contactPersons.length > 0) {
-        validContacts = supplier.contactPersons.filter(
-          (contact) => contact.name.trim() !== '' || contact.phone.trim() !== ''
-        );
-      }else{
-        showAlert('Please at least add one contact person');
-        return
-      }
+      // if (Array.isArray(supplier.contactPersons) && supplier.contactPersons.length > 0) {
+      //   validContacts = supplier.contactPersons.filter(
+      //     (contact) => contact.name.trim() !== '' || contact.phone.trim() !== ''
+      //   );
+      // }else{
+      //   showAlert('Please at least add one contact person');
+      //   return
+      // }
     
       const supplierData = {
         ...supplier,
-        contactPersons: validContacts, // Assign the validContacts to the supplier data
+        contactPersons: validContacts, 
       };
     
-      onSave(supplierData); // Pass the updated supplier data
-      onClose(); // Close the dialog
+      onSave(supplierData); 
+      onClose(); 
     } else {
-      showAlert('Please fix the errors before submitting.', 'error'); // Show error alert if validation fails
+      showAlert('Please fix the errors before submitting.', 'error'); 
     }
   };
   

@@ -25,7 +25,8 @@ function Navigator() {
       <button onClick={() => navigate('/logtransactions')}>Log Transactions</button>
       <button onClick={() => navigate('/categories')}>Categories</button>
       <button onClick={() => navigate('/delivery')}>Delivery</button>
-            {/* Logout button */}
+      <button onClick={() => navigate('/suppliers')}>Suppliers</button>
+      {/* Logout button */}
       <button onClick={handleLogout} className="logout-button">Logout</button>
     </nav>
   );

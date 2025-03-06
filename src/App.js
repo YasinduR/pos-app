@@ -11,7 +11,7 @@ import Delivery from './components/Delivery/Delivery';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 import Users from './components/Users/Users';
-
+import Suppliers from './components/Supplier/Supplier'
 
 // ProtectedRoute => to ensure required adminstrative level  
 const App = () => {
@@ -55,6 +55,11 @@ const App = () => {
       <ProtectedRoute allowedRoles={allRoles}>
           <Categories/>
       </ProtectedRoute>   },
+          { path: '/suppliers', 
+            element:             
+            <ProtectedRoute>
+               <Suppliers/>
+            </ProtectedRoute>   }
 
   ]);
   return routes;

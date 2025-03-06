@@ -185,3 +185,6 @@ function SupplierTransaction() {
 }
 
 export default SupplierTransaction;
+
+
+// Backend crashed when placing a order

@@ -233,3 +233,8 @@ function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) 
 }
 
 export default DialogBox;
+
+
+// Suggestsions // Update phone regex to 10 nuber digits
+// dont show error field before editing phone number
+// comment out console.logs

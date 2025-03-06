@@ -127,3 +127,4 @@ export default function Supplier() {
   )
 }
 
+// handle errors in case tha request doesn't work fetchall fn

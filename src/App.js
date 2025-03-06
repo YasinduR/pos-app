@@ -59,20 +59,20 @@ const App = () => {
       element:             
       <ProtectedRoute allowedRoles={allRoles}>
           <Categories/>
-      </ProtectedRoute>   },
+      </ProtectedRoute >   },
           { path: '/suppliers', 
             element:             
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={allRoles}>
                <Suppliers/>
             </ProtectedRoute>   },
              { path: '/supplierTransactions', 
               element:             
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={allRoles}>
                  <SupplierTransaction/>
               </ProtectedRoute>   },
                 { path: '/supplierOrders', 
                   element:             
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={allRoles}>
                      <SupplierOrders/>
                   </ProtectedRoute>   },
           

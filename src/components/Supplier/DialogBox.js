@@ -166,7 +166,7 @@ function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) 
     <div className="dialog-overlay">
       <div className="dialog-box">
         <h2>{isNewSupplier ? 'Add New Supplier' : 'Edit Supplier'}</h2>
-        <button type="button" onClick={onClose}>Cancel</button>
+     
         <form>
           <label>
             Name:
@@ -192,7 +192,7 @@ function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) 
             {errors.phone && <small className="error">{errors.phone}</small>}
           </label>
 
-          <h3>Contact Persons (Optional)</h3>
+          {/* <h3>Contact Persons (Optional)</h3>
            {supplier.contactPersons && supplier.contactPersons.length > 0 ? (
             supplier.contactPersons.map((contact, index) => (
               <div key={index}>
@@ -216,7 +216,7 @@ function DialogBox({ isOpen, onClose, onSave, initialSupplier, isNewSupplier }) 
             ))
           ) : (
             <small className="error">No contact persons added.</small>
-          )}
+          )} */}
 
           <div className="dialog-actions">
             <button type="button" onClick={handleSave}>

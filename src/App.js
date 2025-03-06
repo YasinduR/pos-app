@@ -10,8 +10,13 @@ import Categories from './components/Categories/Categories';
 import Delivery from './components/Delivery/Delivery';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
+import Suppliers from './components/Supplier/Supplier';
+import SupplierTransaction from './components/supplier_Transactions/SupplierTransaction';
+import SupplierOrders from './components/supplier_Orders/SupplierOrders';
+
+
 import Users from './components/Users/Users';
-import Suppliers from './components/Supplier/Supplier'
+//import Suppliers from './components/Supplier/Supplier'
 
 // ProtectedRoute => to ensure required adminstrative level  
 const App = () => {
@@ -59,7 +64,20 @@ const App = () => {
             element:             
             <ProtectedRoute>
                <Suppliers/>
-            </ProtectedRoute>   }
+            </ProtectedRoute>   },
+             { path: '/supplierTransactions', 
+              element:             
+              <ProtectedRoute>
+                 <SupplierTransaction/>
+              </ProtectedRoute>   },
+                { path: '/supplierOrders', 
+                  element:             
+                  <ProtectedRoute>
+                     <SupplierOrders/>
+                  </ProtectedRoute>   },
+          
+            
+             
 
   ]);
   return routes;

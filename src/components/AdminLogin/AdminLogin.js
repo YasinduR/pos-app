@@ -5,8 +5,8 @@ import api from '../../api'; // Import the Axios instance
 
 
 function AdminLogin() {
-  const [email, setEmail] = useState('yasindu@example.com');
-  const [password, setPassword] = useState('12345');
+  const [email, setEmail] = useState('mano1996@gmai.com');
+  const [password, setPassword] = useState('mano');
   const [error, setError] = useState('');
   const { setAdminData } = useAdminContext();
   const navigate = useNavigate();

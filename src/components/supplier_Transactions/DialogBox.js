@@ -25,11 +25,12 @@ export default function DialogBox({
   const [paidAmount, setPaidAmount] = useState(0);
   const [RemainingAmount, setRemainingAmount] = useState(0);
 
-  console.log(" transactionType");
-  console.log(transactionType);
+  const[receiveOrder_BillTotal,setReceiveOrder_BillTotal]=useState(0);
+  const[receiveOrder_Discount,setReceiveOrder_Discount]=useState(0);
 
-  console.log("initialTransaction");
-  console.log(initialTransaction);
+
+  // console.log("initialTransaction");
+  // console.log(initialTransaction.SupplierOrder);
 
   const calRemainingAmount = () => {
     setRemainingAmount(
@@ -45,6 +46,7 @@ export default function DialogBox({
     if (isOpen) {
       fetchAllItems();
       initialSupplierOrders();
+      handleRecieveOder();
     }
   }, [isOpen]);
 
@@ -57,12 +59,13 @@ export default function DialogBox({
     }
   };
 
+
+  // display amount for transaction bill payments
   const initialSupplierOrders = () => {
     if (initialTransaction && initialTransaction.SupplierOrder) {
       try {
-        // const parsedOrder = JSON.parse(initialTransaction);
-        const parsedOrder = initialTransaction; // No need to parse
-
+        
+        const parsedOrder = initialTransaction;
         setEditTransaction_BillTotal(parsedOrder.amount);
         setEditTransaction_Discount(parsedOrder.discount);
         setPaidAmount(parsedOrder.paidAmount);
@@ -72,17 +75,6 @@ export default function DialogBox({
       }
     }
   };
-
-  //   const initialEditTransaction = () => {
-  //     if (initialTransaction && initialTransaction.SupplierOrder) {
-  //       try {
-
-  //       } catch (error) {
-  //         console.error("Error parsing SupplierOrder:", error);
-
-  //       }
-  //     }
-  //   };
 
   const handleAddToTable = () => {
     if (!selectItem) {
@@ -133,7 +125,6 @@ export default function DialogBox({
   const billTotal = supplierOrder.reduce((total, order) => {
     return total + (order.unitPrice || 0) * order.itemQnt;
   }, 0);
-  
 
   const createSupplierTransaction = async () => {
     try {
@@ -150,16 +141,73 @@ export default function DialogBox({
     }
   };
 
-  const handleReceiveOrder = async () => {
-    // Logic to handle receiving order
-    showAlert("Order received successfully!", "success");
-    onClose();
-  };
-
   const handleCreateTransaction = async () => {
     // Logic to handle creating a general transaction
     showAlert("Transaction created successfully!", "success");
     onClose();
+  };
+
+
+      
+  const handleRecieveOder = () => {
+    if (initialTransaction && initialTransaction.SupplierOrder) {
+      console.log("initialTransaction.SupplierOrder:", initialTransaction.SupplierOrder);
+      
+     
+      let RecivedOders = initialTransaction.SupplierOrder;
+      
+      // If SupplierOrder is a string (JSON string), parse it
+      if (typeof RecivedOders === 'string') {
+        try {
+          RecivedOders = JSON.parse(RecivedOders);
+        } catch (error) {
+          console.error("Error parsing SupplierOrder JSON string:", error);
+          return;
+        }
+      }
+      
+      if (Array.isArray(RecivedOders)) {
+        console.log('Recieved Oder:', RecivedOders);
+        
+        try {
+          console.log('come to try block');
+          console.log(RecivedOders);
+          console.log('===================');
+  
+          const initialReceivedOder = RecivedOders.map((order) => ({
+            itemName: order.itemName,
+            itemId: order.itemId,
+            itemQnt: order.RequestedAmount,
+            unitPrice: order.unitPrice,
+            receivedQnt: order.AcceptedAmount,
+          }));
+  
+          console.log('initialReceivedOder');
+          console.log(initialReceivedOder);
+  
+          setReceivedOder(initialReceivedOder);
+        } catch (error) {
+          console.error("Error parsing SupplierOrder:", error);
+          setReceivedOder([]);
+        }
+      } else {
+        console.error("SupplierOrder is not an array, it is:", typeof RecivedOders);
+        setReceivedOder([]);  // Or handle this case as necessary
+      }
+    }
+  };
+  
+
+  const handleReceivedQuantityChange = (itemId, newQuantity) => {
+    setReceivedOder((prevOrders) =>
+      prevOrders.map((order) =>
+        order.itemId === itemId ? { ...order, receivedQnt: newQuantity } : order
+      )
+    );
+  };
+
+  const updateRecievedOder = () => {
+    // empty for now
   };
 
   if (!isOpen) return null;
@@ -289,7 +337,78 @@ export default function DialogBox({
         {transactionType === "Receive_Order" && (
           <div>
             <p>Details for receiving order.</p>
-            <button onClick={handleReceiveOrder}>Confirm Receipt</button>
+            <div>
+              <div>
+                <label>Supplier:</label>
+                <input value={initialTransaction.supplierName} readOnly />
+              </div>
+
+              <div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Product Name</th>
+                      <th>Order Quantity</th>
+                      <th>Unit Price</th>
+                      <th>Recived Quantity</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {receivedOder.length > 0 ? (
+                      receivedOder.map((order, index) => (
+                        <tr key={order.itemId}>
+                          <td>{index + 1}</td>
+                          <td>{order.itemName}</td>
+                          <td>{order.itemQnt}</td>
+                          <td>{order.unitPrice.toFixed(2)}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              value={order.receivedQnt}
+                              onChange={(e) =>
+                                handleReceivedQuantityChange(
+                                  order.itemId,
+                                  Number(e.target.value)
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            {(order.unitPrice * order.receivedQnt).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6">No items received</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div>
+                <label>Bill Total:</label>
+                <span> ${billTotal.toFixed(2)}</span>
+              </div>
+              <div>
+                <label>Discount:</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={discount}
+                  onChange={(e) => setDiscount(Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <label>Total after Discount:</label>
+                <input readOnly value={(billTotal - discount).toFixed(2)} />
+              </div>
+            </div>
+            <button>Confirm Receipt</button>
           </div>
         )}
         {/* ============content for transactions========== */}
@@ -318,7 +437,7 @@ export default function DialogBox({
               />
             </div>
             <div>
-            <label>Paid Amount</label>
+              <label>Paid Amount</label>
               <input
                 type="number"
                 value={paidAmount}

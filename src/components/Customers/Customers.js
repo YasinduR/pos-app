@@ -3,6 +3,7 @@ import api from '../../api';
 import DialogBox from './DialogBox';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import Header from '../Header/Header';
+import { getAuthConfig } from '../../config/authConfig';
 
 function Customers() {
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -13,11 +14,13 @@ function Customers() {
   const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isNewCustomer, setIsNewCustomer] = useState(false);
+  
 
   useEffect(() => {
     async function fetchCustomers() {
       try {
-        const response = await api.get('/users');
+        const config = getAuthConfig();
+        const response = await api.get('/users',config);
         setCustomers(response.data);
       } catch (err) {
         setError('Failed to load customer data.');
@@ -30,15 +33,17 @@ function Customers() {
 
   const handleSaveCustomer = async (customer) => {
     try {
+      const config = getAuthConfig();
       if (editCustomer) {
         // Update existing customer
-        await api.put(`/users/${editCustomer.id}`, customer);
+        
+        await api.put(`/users/${editCustomer.id}`, customer,config);
         setCustomers((prev) =>
           prev.map((c) => (c.id === editCustomer.id ? customer : c))
         );
       } else {
         // Create new customer
-        const response = await api.post('/users', customer);
+        const response = await api.post('/users', customer,config);
         setCustomers((prev) => [...prev, response.data]);
       }
     } catch (err) {

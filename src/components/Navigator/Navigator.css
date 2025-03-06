@@ -1,0 +1,34 @@
+/* Navigator.css */
+
+/* Style for the nav container */
+.nav {
+    display: flex;
+    justify-content: flex-start; /* Aligns buttons to the left by default */
+    gap: 5px; /* Adds space between buttons */
+    flex-wrap: wrap; /* Ensures buttons wrap if needed in smaller screens */
+  }
+  
+  /* Style for each button */
+  .nav button {
+    padding: 5px 10px;
+    margin: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav button:hover {
+    background-color: #0056b3;
+  }
+
+
+.nav button:last-child {
+    /* flex-grow: 1; /* This makes the last button take up remaining space */
+    margin-left: auto; /* Adjust the gap if necessary */
+    background-color: #ff0000;
+  }
+  

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
+import { getAuthConfig } from '../../config/authConfig';
 
 
 function Summary({type ='Income'}) {
@@ -26,9 +27,10 @@ function Summary({type ='Income'}) {
 
     useEffect(() => {
       async function fetchTransactions() {
+        const config = getAuthConfig();
         const endpoint = type === 'Income' ? '/transaction/all' : '/stransaction/all';
         try {
-          const response = await api.get(endpoint);
+          const response = await api.get(endpoint,config);
           setTransactions(response.data);
         } catch (err) {
           setError(error_msg);
@@ -50,15 +52,15 @@ function Summary({type ='Income'}) {
               setEndDate(formattedTommorow);
             }
             const endpoint = type === 'Income' ? '/transaction/bydate' : '/stransaction/bydate';
+            const config = getAuthConfig();
             try {
-
               setLoading(true);
               setError(null);
               const response = await api.get(endpoint, {
                 params: {
                   date1: startDate,  
                   date2: endDate,     
-                },
+                },...config
               });
               setTransactions(response.data);
             } catch (err) {

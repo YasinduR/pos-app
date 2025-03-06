@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import { useAlert } from '../../context/AlertContext';
 import Header from '../Header/Header';
+import { getAuthConfig } from '../../config/authConfig';
 
 function LogTransaction() {
   const [username, setUsername] = useState('');
@@ -100,6 +101,7 @@ function LogTransaction() {
   const handleTransactionConfirm = async () => {
 
     try {
+      const config = getAuthConfig();
       if (cart.length === 0) {
         throw new Error("Cart is empty"); // Create and throw a new error with a message
       }
@@ -118,7 +120,8 @@ function LogTransaction() {
         type:"POS",
         cart: { items: cart_},
       };
-      const response = await api.post("/transaction", transactionData);
+
+      const response = await api.post('/transaction/pos-transaction', transactionData,config);
 
       setMessage('Transaction logged successfully!');
       setUsername('');

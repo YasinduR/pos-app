@@ -55,9 +55,11 @@ export default function Supplier() {
       }else{
         //create new supplier
         const response= await api.post('/suppliers',supplier)
+        console.log(response);
+        
 
         if(response.data.success==false){
-          showAlert('Could not create a supplier', response.data.message);
+          showAlert(`Cannot create this supplier ${response.data.message}`);
           return
         }
         
@@ -74,7 +76,12 @@ export default function Supplier() {
 
   const handleDelete=async(id)=>{
     if(window.confirm("Are you sure you want to delete this supplier?"))
+      console.log('id');
+    console.log(id);
+    
       try {
+  
+    
     await api.delete(`/deleteSupplier/${id}`);
     setSuppliers(suppliers.filter((supplier)=>supplier.id !==id));
         

@@ -15,6 +15,7 @@ function DialogBox({
 
 
   const [supplier, setSupplier] = useState({
+    id:"",
     name: "",
     address: "",
     phone: "",
@@ -34,40 +35,33 @@ function DialogBox({
   });
 
   const [changedField, setChangedField] = useState(null);
-
-
-
+ 
+  
   useEffect(() => {
-    if (isOpen) {
-      setSupplier(
-        initialSupplier
-          ? {
-              name: initialSupplier.name || "",
-              address: initialSupplier.address || "",
-              email: initialSupplier.email || "",
-              phone: initialSupplier.phone || "",
-              contactPersons: Array.isArray(initialSupplier.contact_persons)
-                ? initialSupplier.contact_persons.map((contact) => ({
-                    name: contact.name || "",
-                    phone: contact.phone || "",
-                  }))
-                : [
-                    { name: "", phone: "" },
-                    { name: "", phone: "" },
-                  ],
-            }
-          : {
-              name: "",
-              address: "",
-              email: "",
-              phone: "",
-              contactPersons: [
-                { name: "", phone: "" },
-                { name: "", phone: "" },
-              ],
-            }
-      );
-
+    if (isOpen && initialSupplier) {
+      // Parse contact_persons only if it's a JSON string
+      const parsedContactPersons =
+        typeof initialSupplier.contact_persons === "string"
+          ? JSON.parse(initialSupplier.contact_persons) 
+          : initialSupplier.contact_persons;
+  
+      setSupplier({
+        id:initialSupplier.id || "",
+        name: initialSupplier.name || "",
+        address: initialSupplier.address || "",
+        email: initialSupplier.email || "",
+        phone: initialSupplier.phone || "",
+        contactPersons: Array.isArray(parsedContactPersons)
+          ? parsedContactPersons.map((contact) => ({
+              name: contact.name || "",
+              phone: contact.phone || "",
+            }))
+          : [
+              { name: "", phone: "" },
+              { name: "", phone: "" },
+            ],
+      });
+  
       setErrors({
         name: null,
         address: null,
@@ -77,29 +71,15 @@ function DialogBox({
       });
     }
   }, [isOpen, initialSupplier]);
+  
 
   useEffect(() => {
 
       if (changedField) {
-        const error = validateField(changedField, supplier[changedField]);
-        console.log('adding error to validate fields');
-        
-        console.log(error);
-        
+        const error = validateField(changedField, supplier[changedField]);        
         setErrors((prev) => ({ ...prev, [changedField]: error }));
       }
-    
   }, [changedField, supplier]);
-
-  useEffect(()=>{
-    console.log('changed fields');
-    console.log(changedField);
-    console.log('supplier');
-    console.log(supplier);
-    console.log('errors');
-    console.log(errors);
-  },[changedField,supplier,errors])
-
 
 
   const handleChange = (e) => {
@@ -199,14 +179,24 @@ function DialogBox({
         showAlert("Please add at least one valid contact person.", "error");
         return;
       }
-
       const supplierData = {
         ...supplier,
         contactPersons: validContacts,
       };
-
       onSave(supplierData);
       onClose();
+        // Reset the form state
+        setSupplier({
+          id: "",
+          name: "",
+          address: "",
+          phone: "",
+          email: "",
+          contactPersons: [
+            { name: "", phone: "" },
+            { name: "", phone: "" },
+          ],
+        });
       setChangedField(null)    } else {
       showAlert("Please fix the errors before submitting.", "error");
     }
@@ -219,6 +209,20 @@ function DialogBox({
       phone: null,
       contactPersons: [],
     });
+
+      // Reset the form state
+      setSupplier({
+        id: "",
+        name: "",
+        address: "",
+        phone: "",
+        email: "",
+        contactPersons: [
+          { name: "", phone: "" },
+          { name: "", phone: "" },
+        ],
+      });
+
     setChangedField(null)
     onClose();
   };

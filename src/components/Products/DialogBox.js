@@ -4,7 +4,7 @@ import { useAlert } from '../../context/AlertContext';
 import DragDropUpload from './DragAndDrop';
 import s3 from '../../aws/aws-config';
 import api from '../../api';
-
+import { getAuthConfig } from '../../config/authConfig';
 
 function DialogBox({ isOpen, onClose, onSave, initialProduct, isNewProduct }) {
   const { showAlert } = useAlert();
@@ -56,7 +56,8 @@ useEffect(()=>{
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get('/cats');
+        const config  = getAuthConfig();
+        const response = await api.get('/cats',config);
         setCategories(response.data || []);
       } catch (error) {
         console.error('Error fetching categories:', error);

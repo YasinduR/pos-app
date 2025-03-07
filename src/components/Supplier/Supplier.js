@@ -12,6 +12,8 @@ export default function Supplier() {
   const[editSupplier,setEditSupplier]=useState(null)
   const {showAlert}=useAlert()
 
+  const[initialLoading,setInitialLoading]=useState(false)
+
   const fetchAllSuppliers=async()=>{
 
     const Response=await api.get('/allSuppliers')
@@ -32,9 +34,8 @@ export default function Supplier() {
   const handleCreateSupplier=async(supplier)=>{
     setShowDialog(true);
     setIsNewSupplier(true);
-    setEditSupplier(false)
-    console.log('handle create supplier function called');
-    
+    setEditSupplier(false);
+    setInitialLoading(true)    
   }
 
   const handleEditSupplier=async(supplier)=>{
@@ -46,8 +47,7 @@ export default function Supplier() {
   }
 
   const handleSaveSupplier=async(supplier)=>{
-    console.log('Handle save supplier');
-    console.log(supplier);
+ 
     try {
       if(editSupplier){
         await api.put(`/updateSupplier/${editSupplier.id}`,supplier);
@@ -55,6 +55,14 @@ export default function Supplier() {
       }else{
         //create new supplier
         const response= await api.post('/suppliers',supplier)
+        console.log(response);
+        
+
+        if(response.data.success==false){
+          showAlert(`Cannot create this supplier ${response.data.message}`);
+          return
+        }
+        
   
         setSuppliers((prev)=>[...prev, response.data])
         fetchAllSuppliers()
@@ -68,7 +76,12 @@ export default function Supplier() {
 
   const handleDelete=async(id)=>{
     if(window.confirm("Are you sure you want to delete this supplier?"))
+      console.log('id');
+    console.log(id);
+    
       try {
+  
+    
     await api.delete(`/deleteSupplier/${id}`);
     setSuppliers(suppliers.filter((supplier)=>supplier.id !==id));
         
@@ -77,6 +90,11 @@ export default function Supplier() {
         
       }
   }
+
+  const handleClose = () => {
+    setShowDialog(false);
+    setEditSupplier(null); 
+  };
 
   return (
     <div>
@@ -114,12 +132,11 @@ export default function Supplier() {
     </table>
     <DialogBox
     isOpen={showDialog}
-    onClose={()=>setShowDialog(false)}
     onSave={handleSaveSupplier} 
-  
-    
+    onClose={handleClose} 
     initialSupplier={editSupplier}
     isNewSupplier={isNewSupplier}
+    lodingState={initialLoading}
     />
    
     
@@ -127,4 +144,3 @@ export default function Supplier() {
   )
 }
 
-// handle errors in case tha request doesn't work fetchall fn

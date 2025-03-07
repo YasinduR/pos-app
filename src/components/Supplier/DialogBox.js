@@ -11,18 +11,13 @@ function DialogBox({
 }) {
   const { showAlert } = useAlert();
 
-  
-
-
   const [supplier, setSupplier] = useState({
     id:"",
     name: "",
     address: "",
     phone: "",
     email: "",
-    contactPersons: [
-      { name: "", phone: "" },
-      { name: "", phone: "" },
+    contact_persons: [
     ],
   });
 
@@ -31,7 +26,7 @@ function DialogBox({
     address: null,
     email: null,
     phone: null,
-    contactPersons: [],
+    contact_persons: [],
   });
 
   const [changedField, setChangedField] = useState(null);
@@ -39,27 +34,15 @@ function DialogBox({
   
   useEffect(() => {
     if (isOpen && initialSupplier) {
+      console.log(initialSupplier);
       // Parse contact_persons only if it's a JSON string
-      const parsedContactPersons =
-        typeof initialSupplier.contact_persons === "string"
-          ? JSON.parse(initialSupplier.contact_persons) 
-          : initialSupplier.contact_persons;
-  
       setSupplier({
         id:initialSupplier.id || "",
         name: initialSupplier.name || "",
         address: initialSupplier.address || "",
         email: initialSupplier.email || "",
         phone: initialSupplier.phone || "",
-        contactPersons: Array.isArray(parsedContactPersons)
-          ? parsedContactPersons.map((contact) => ({
-              name: contact.name || "",
-              phone: contact.phone || "",
-            }))
-          : [
-              { name: "", phone: "" },
-              { name: "", phone: "" },
-            ],
+        contact_persons: initialSupplier.contact_persons|| []
       });
   
       setErrors({
@@ -67,7 +50,7 @@ function DialogBox({
         address: null,
         email: null,
         phone: null,
-        contactPersons: [],
+        contact_persons: [],
       });
     }
   }, [isOpen, initialSupplier]);
@@ -89,17 +72,17 @@ function DialogBox({
   };
 
   const handleContactPersonChange = (index, field, value) => {
-    const updatedContactPersons = [...supplier.contactPersons];
-    updatedContactPersons[index][field] = value;
-    setSupplier((prev) => ({ ...prev, contactPersons: updatedContactPersons }));
+    const updatedcontact_persons = [...supplier.contact_persons];
+    updatedcontact_persons[index][field] = value;
+    setSupplier((prev) => ({ ...prev, contact_persons: updatedcontact_persons }));
 
     // Validate the contact person when updated
-    const updatedErrors = [...errors.contactPersons];
+    const updatedErrors = [...errors.contact_persons];
     updatedErrors[index] = {
       ...updatedErrors[index],
       [field]: validateContactPersonField(index, field, value),
     };
-    setErrors((prev) => ({ ...prev, contactPersons: updatedErrors }));
+    setErrors((prev) => ({ ...prev, contact_persons: updatedErrors }));
   };
 
   const validateField = (name, value) => {
@@ -120,7 +103,7 @@ function DialogBox({
       case "phone":
         const phoneRegex = /^\+?(\d{1,4}[\s-])?(\d{10})$/;
         return !phoneRegex.test(value)
-          ? "Please enter a valid phone number (10 digits)."
+          ? "Please enter a valid phone number"
           : null;
       default:
         return null;
@@ -149,7 +132,7 @@ function DialogBox({
       address: validateField("address", supplier.address),
       email: validateField("email", supplier.email),
       phone: validateField("phone", supplier.phone),
-      contactPersons: supplier.contactPersons.map((contact, index) => ({
+      contact_persons: supplier.contact_persons.map((contact, index) => ({
         name: validateContactPersonField(index, "name", contact.name),
         phone: validateContactPersonField(index, "phone", contact.phone),
       })),
@@ -162,7 +145,7 @@ function DialogBox({
       !newErrors.address &&
       !newErrors.email &&
       !newErrors.phone &&
-      newErrors.contactPersons.every(
+      newErrors.contact_persons.every(
         (contactError) =>
           !contactError.name && !contactError.phone
       )
@@ -171,7 +154,7 @@ function DialogBox({
 
   const handleSave = () => {
     if (validateAllFields()) {
-      let validContacts = supplier.contactPersons.filter(
+      let validContacts = supplier.contact_persons.filter(
         (contact) => contact.name.trim() !== "" && contact.phone.trim() !== ""
       );
 
@@ -181,7 +164,7 @@ function DialogBox({
       }
       const supplierData = {
         ...supplier,
-        contactPersons: validContacts,
+        contact_persons: validContacts,
       };
       onSave(supplierData);
       onClose();
@@ -192,12 +175,11 @@ function DialogBox({
           address: "",
           phone: "",
           email: "",
-          contactPersons: [
-            { name: "", phone: "" },
-            { name: "", phone: "" },
+          contact_persons: [
           ],
         });
-      setChangedField(null)    } else {
+      setChangedField(null)    }
+       else {
       showAlert("Please fix the errors before submitting.", "error");
     }
   };
@@ -207,7 +189,7 @@ function DialogBox({
       address: null,
       email: null,
       phone: null,
-      contactPersons: [],
+      contact_persons: [],
     });
 
       // Reset the form state
@@ -217,9 +199,7 @@ function DialogBox({
         address: "",
         phone: "",
         email: "",
-        contactPersons: [
-          { name: "", phone: "" },
-          { name: "", phone: "" },
+        contact_persons: [
         ],
       });
 
@@ -227,6 +207,19 @@ function DialogBox({
     onClose();
   };
 
+  const addContactPerson = () => {
+    setSupplier((prev) => ({
+      ...prev,
+      contact_persons: [...prev.contact_persons, { name: "", phone: "" }],
+    }));
+  };
+  
+  const removeContactPerson = (index) => {
+    setSupplier((prev) => ({
+      ...prev,
+      contact_persons: prev.contact_persons.filter((_, i) => i !== index),
+    }));
+  };
 
   if (!isOpen) return null;
 
@@ -281,38 +274,50 @@ function DialogBox({
             />
             {errors.phone && <small className="error">{errors.phone}</small>}
           </label>
+<div className="contact-persons-container">
+    <div className="contact-persons-header">
+    <h3>Contact Persons</h3>
+    <button className="add-contact" type="button" onClick={addContactPerson}>
+      +
+    </button>
+  </div>
+{supplier.contact_persons.map((contact, index) => (
+    <div key={index} className="contact-person">
+      <div className="contact-person-header">
+        <h4>Contact Person {index + 1}</h4>
+        <button
+          className="remove-contact"
+          type="button"
+          onClick={() => removeContactPerson(index)}
+        >-</button>
+      </div>
 
-          <h3>Contact Persons </h3>
-          {supplier.contactPersons.map((contact, index) => (
-            <div key={index}>
-              <label>
-                Contact Person {index + 1} Name:
-                <input
-                  type="text"
-                  value={contact.name}
-                  onChange={(e) =>
-                    handleContactPersonChange(index, "name", e.target.value)
-                  }
-                />
-                {errors.contactPersons[index]?.name && (
-                  <small className="error">{errors.contactPersons[index]?.name}</small>
-                )}
-              </label>
-              <label>
-                Contact Person {index + 1} Phone:
-                <input
-                  type="text"
-                  value={contact.phone}
-                  onChange={(e) =>
-                    handleContactPersonChange(index, "phone", e.target.value)
-                  }
-                />
-                {errors.contactPersons[index]?.phone && (
-                  <small className="error">{errors.contactPersons[index]?.phone}</small>
-                )}
-              </label>
-            </div>
-          ))}
+      <label>
+        Name:
+        <input
+          type="text"
+          value={contact.name}
+          onChange={(e) => handleContactPersonChange(index, "name", e.target.value)}
+        />
+        {errors.contact_persons[index]?.name && (
+          <small className="error">{errors.contact_persons[index]?.name}</small>
+        )}
+      </label>
+
+      <label>
+        Phone:
+        <input
+          type="text"
+          value={contact.phone}
+          onChange={(e) => handleContactPersonChange(index, "phone", e.target.value)}
+        />
+        {errors.contact_persons[index]?.phone && (
+          <small className="error">{errors.contact_persons[index]?.phone}</small>
+        )}
+      </label>
+    </div>
+  ))}
+  </div>
 
           <div className="dialog-actions">
             <button type="button" onClick={handleSave}>

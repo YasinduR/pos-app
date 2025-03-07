@@ -126,6 +126,101 @@
     color: #000;
   }
 
+
+  /* Contact person styling */
+/* Container for all contact persons */
+.contact-persons-container {
+  margin: 20px;
+}
+
+/* Header for the contact persons section */
+.contact-persons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.contact-persons-header h3 {
+  margin: 0;
+}
+
+.add-contact {
+  font-size: 1.5em;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.add-contact:hover {
+  background-color: #0056b3;
+}
+
+/* Style for each contact person */
+.contact-person {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+/* Header for each contact person (name and delete button) */
+.contact-person-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.contact-person-header h4 {
+  margin: 0;
+}
+
+.remove-contact {
+  font-size: 1.5em;
+  padding: 5px 12px;
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.remove-contact:hover {
+  background-color: #af1c1c;
+}
+
+/* Input fields and labels */
+.contact-person label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1em;
+}
+
+.contact-person input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+.contact-person input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.contact-person small.error {
+  font-size: 0.8em;
+  color: red;
+}
+
     /* Animation for dialog appearing */
     @keyframes fadeIn {
       0% {

@@ -56,7 +56,7 @@ function SupplierTransaction() {
     setEndDate(toDate);
   };
 
-  // functions related to view
+
   const handleSupplierTransactionView = (transaction) => {
     setSupplierOrder(transaction);
     setShowSupplierTransactionView(true);

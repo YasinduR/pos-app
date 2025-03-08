@@ -54,6 +54,12 @@ export default function SupplierTransactionView({
 
   if (!isOpen) return null; 
 
+  console.log('supplier Oder');
+  
+
+  console.log(supplierOrder);
+  
+
   return (
     <div className='dialog-overlay'>
       <div className='dialog-box' style={{ width: "85%" }}>
@@ -101,9 +107,10 @@ export default function SupplierTransactionView({
                     <tr key={order.itemId}>
                       <td>{index + 1}</td>
                       <td>{order.itemName}</td>
-                      <td>{order.itemQnt}</td>
+                      <td>{order.RequestedAmount}</td>
                       <td>{order.unitPrice.toFixed(2)}</td>
-                      <td>{(order.unitPrice * order.itemQnt).toFixed(2)}</td>
+                      <td>{order.AcceptedAmount}</td>
+                      <td>{(order.unitPrice * order.RequestedAmount).toFixed(2)}</td>
                     </tr>
                   ))
                 ) : (

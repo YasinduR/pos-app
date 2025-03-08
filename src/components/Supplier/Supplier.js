@@ -4,6 +4,7 @@ import api from '../../api';
 import { useAlert } from '../../context/AlertContext';
 import DialogBox from './DialogBox';
 
+
 export default function Supplier() {
 
   const[suppliers,setSuppliers]=useState([]);
@@ -104,7 +105,6 @@ export default function Supplier() {
     <table>
       <thead>
         <tr>
-          <th>#</th>
           <th>Name</th>
           <th>Address</th>
           <th>Phone Number</th>

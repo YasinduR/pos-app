@@ -8,7 +8,8 @@ export default function DialogBox({
   onClose,
   initialTransaction,
   transactionType,
-}) {
+})
+ {
   const [quantity, setQuantity] = useState(1);
   const [allItems, setAllItems] = useState([]);
   const [message, setMessage] = useState("");

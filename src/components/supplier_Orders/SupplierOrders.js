@@ -72,14 +72,18 @@ export default function SupplierOrders() {
   );
 
   const createSupplierTransaction = async () => {
-    //disable the place oder button
-
+  
+    console.log('create oder');
+    
     if (!selectedSupplier) {
       showAlert("Please select a supplier to process the request");
       return;
     }
 
     try {
+
+      console.log('try block');
+      
       const supplierTransaction = {
         supplierId: selectedSupplier,
         amount: billTotal,
@@ -93,6 +97,11 @@ export default function SupplierOrders() {
         "/supplierTransaction",
         supplierTransaction
       );
+
+      console.log('supplier oder respoonse');
+      console.log(response);
+      
+      
 
       if (response.data.success) {
         showAlert("Oder for the supplier created successfully");

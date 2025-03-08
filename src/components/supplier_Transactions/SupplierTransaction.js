@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import api from "../../api";
 import DialogBox from "./DialogBox";
+
+import SupplierTransactionView from "./SupplierTransactionView";
+import StockUpdate from "./StockUpdate";
+import PaymentUpdate from "./PaymentUpdate";
+
 import { getAuthConfig } from "../../config/authConfig";
 
 function SupplierTransaction() {
@@ -11,9 +16,17 @@ function SupplierTransaction() {
   const [selectSupplier, setSelectedSupplier] = useState("");
   const [allTransactions, setAllTransactions] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+
+  const [showSupplierTransactionView, setShowSupplierTransactionView] =
+    useState(false);
+  const [showStockUpdate, setShowStockUpdate] = useState(false);
+  const [showPaymentUpdate, setShowPaymentUpdate] = useState(false);
+
   const [supplierOrder, setSupplierOrder] = useState(null);
   const [transactionType, setTransactionType] = useState("");
   const [loading, setLoading] = useState(true);
+  const [supplierNames, setSupplierNames] = useState({});
+
 
   const [page, setPage] = useState(1);
   const pageSize = 5; // Number of transactions per page
@@ -31,7 +44,6 @@ function SupplierTransaction() {
     }
   };
 
-  // Set default date range
   const setDate = () => {
     const today = new Date();
     const fromDate = today.toISOString().split("T")[0];
@@ -44,21 +56,20 @@ function SupplierTransaction() {
     setEndDate(toDate);
   };
 
-  const handleSupplierOder = (transaction) => {
+  // functions related to view
+  const handleSupplierTransactionView = (transaction) => {
     setSupplierOrder(transaction);
-    setShowDialog(true);
-    setTransactionType("Supplier_Order");
+    setShowSupplierTransactionView(true);
   };
 
-  const handleRecieveOder = (transaction) => {
+  const handleStockUpdate = (transaction) => {
     setSupplierOrder(transaction);
-    setShowDialog(true);
-    setTransactionType("Receive_Order");
+    setShowStockUpdate(true);
   };
-  const handleChangeTransaction = (transaction) => {
+
+  const handleTransactionUpdate = (transaction) => {
     setSupplierOrder(transaction);
-    setShowDialog(true);
-    setTransactionType("Edit_Transaction");
+    setShowPaymentUpdate(true);
   };
 
   // Load transactions
@@ -113,11 +124,11 @@ function SupplierTransaction() {
 
   const handleFilter = async () => {
     const config = getAuthConfig();
-    console.log('handle filter');
-    
+    console.log("handle filter");
+
     try {
-      console.log('handle filter inside try block');
-      
+      console.log("handle filter inside try block");
+
       setLoading(true);
 
       const response = await api.get("/filteredSupplierTransactions", {
@@ -127,13 +138,12 @@ function SupplierTransaction() {
           date2: endDate,
           page: page,
           pageSize: pageSize,
-        },...config 
+        },
+        ...config,
       });
 
-      console.log('response for filter');
+      console.log("response for filter");
       console.log(response);
-      
-      
 
       setTotalPages(Math.ceil(response.data.totalRecords / pageSize));
 
@@ -145,15 +155,13 @@ function SupplierTransaction() {
     }
   };
 
-  
   useEffect(() => {
     handleFilter();
 
-    if(selectSupplier=="0"){
-      loadAllTransactions()
+    if (selectSupplier == "0") {
+      loadAllTransactions();
     }
-
-  }, [selectSupplier, startDate, endDate, page]); 
+  }, [selectSupplier, startDate, endDate, page]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -161,6 +169,38 @@ function SupplierTransaction() {
     }
   };
 
+ 
+  const getSupplierNames = async () => {
+    try {
+      const uniqueSupplierIds = [...new Set(allTransactions.map(t => t.supplierId))]; // Get unique supplier IDs
+
+      const fetchedNames = {}; // Temporary storage for supplier names
+
+      await Promise.all(
+        uniqueSupplierIds.map(async (supplierId) => {
+          if (supplierId && !supplierNames[supplierId]) {
+            try {
+              const response = await api.get(`/supplier/${supplierId}`);
+              fetchedNames[supplierId] = response.data.name;
+            } catch (error) {
+              console.error(`Error fetching supplier ${supplierId}:`, error);
+              fetchedNames[supplierId] = "Unknown Supplier"; // Default if error occurs
+            }
+          }
+        })
+      );
+
+      setSupplierNames(prevNames => ({ ...prevNames, ...fetchedNames }));
+    } catch (error) {
+      console.error("Error fetching supplier names:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (allTransactions.length > 0) {
+      getSupplierNames();
+    }
+  }, [allTransactions]);
 
   return (
     <div>
@@ -217,40 +257,49 @@ function SupplierTransaction() {
       <table>
         <thead>
           <tr>
-            {/* add numbers */}
-            <th>#</th>
-
+            <th>Date</th>
+            <th>Supplier</th>
             <th>Total Amount</th>
             <th>Paid Amount</th>
             <th>Type</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {allTransactions.length > 0 ? (
             allTransactions.map((transaction, index) => (
+              // created_at
+
               <tr key={transaction.id}>
-                <td>{index + 1}</td>
+                {/* <td>{index + 1}</td> */}
+                <th>
+                  {new Date(transaction.created_at).toLocaleDateString() || "-"}
+                </th>
+                <td>{supplierNames[transaction.supplierId] || "Loading..."}</td>
                 <td>{transaction.amount - transaction.discount || 0}</td>
                 <td>{transaction.paidAmount || 0}</td>
                 <td>{transaction.type}</td>
                 <td>
+                  {transaction.status || "in progress"}
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleSupplierTransactionView(transaction)}
+                  >
+                    View Order
+                  </button>
+
+                  <button onClick={() => handleStockUpdate(transaction)}>
+                    Stock Update
+                  </button>
                   <button
                     style={{ margin: "10px" }}
-                    onClick={() => handleSupplierOder(transaction)}
+                    onClick={() => handleTransactionUpdate(transaction)}
                   >
-                    Placed Order
+                    Transaction Update
                   </button>
-                  <button onClick={() => handleRecieveOder(transaction)}>
-                    Received Order
-                  </button>
-                  <button
-                    style={{ margin: "10px" }}
-                    onClick={() => handleChangeTransaction(transaction)}
-                  >
-                    Add Transaction
-                  </button>
-                  <button>Delete</button>
+                  <button>cancle</button>
                 </td>
               </tr>
             ))
@@ -264,11 +313,29 @@ function SupplierTransaction() {
         </tbody>
       </table>
 
-      <DialogBox
+      {/* <DialogBox
         isOpen={showDialog}
         onClose={() => setShowDialog(false)}
         initialTransaction={supplierOrder}
         transactionType={transactionType}
+      /> */}
+
+      <SupplierTransactionView
+        isOpen={showSupplierTransactionView}
+        onClose={() => setShowSupplierTransactionView(false)}
+        initialTransaction={supplierOrder}
+      />
+
+      <StockUpdate
+        isOpen={showStockUpdate}
+        onClose={() => setShowStockUpdate(false)}
+        initialTransaction={supplierOrder}
+      />
+
+      <PaymentUpdate
+        isOpen={showPaymentUpdate}
+        onClose={() => setShowPaymentUpdate(false)}
+        initialTransaction={supplierOrder}
       />
     </div>
   );

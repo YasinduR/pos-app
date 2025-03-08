@@ -6,7 +6,9 @@ import { getAuthConfig } from '../../config/authConfig';
 
 function Username({userid}){
   const [user, setUser] = useState(null);
+
   const config =  getAuthConfig();
+  
   useEffect(() => {
     async function fetchUser() {
       try {

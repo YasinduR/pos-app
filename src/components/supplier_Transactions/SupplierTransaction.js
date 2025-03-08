@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import api from "../../api";
 import DialogBox from "./DialogBox";
+import { getAuthConfig } from "../../config/authConfig";
 
 function SupplierTransaction() {
   const [startDate, setStartDate] = useState("");
@@ -11,11 +12,14 @@ function SupplierTransaction() {
   const [allTransactions, setAllTransactions] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [supplierOrder, setSupplierOrder] = useState(null);
+  const [transactionType, setTransactionType] = useState("");
+  const [loading, setLoading] = useState(true);
 
- 
- 
-  const [transactionType, setTransactionType] = useState("")
+  const [page, setPage] = useState(1);
+  const pageSize = 5; // Number of transactions per page
+  const [totalPages, setTotalPages] = useState(1);
 
+  const config = getAuthConfig;
 
   // Fetch all suppliers from API
   const fetchAllSuppliers = async () => {
@@ -43,21 +47,19 @@ function SupplierTransaction() {
   const handleSupplierOder = (transaction) => {
     setSupplierOrder(transaction);
     setShowDialog(true);
-   setTransactionType('Supplier_Order')
+    setTransactionType("Supplier_Order");
   };
 
-  const handleRecieveOder=(transaction)=>{
+  const handleRecieveOder = (transaction) => {
     setSupplierOrder(transaction);
     setShowDialog(true);
-    setTransactionType('Receive_Order')
-
-  }
-  const handleChangeTransaction=(transaction)=>{
+    setTransactionType("Receive_Order");
+  };
+  const handleChangeTransaction = (transaction) => {
     setSupplierOrder(transaction);
     setShowDialog(true);
-    setTransactionType('Edit_Transaction')
-
-  }
+    setTransactionType("Edit_Transaction");
+  };
 
   // Load transactions
   const loadAllTransactions = async () => {
@@ -80,6 +82,86 @@ function SupplierTransaction() {
     loadAllTransactions();
   }, []);
 
+  const renderPageNumbers = () => {
+    //Pages under the search
+    const pages = [];
+
+    const rangeSize = 5; // Number of page indication APPLIED
+    const halfRange = Math.floor(rangeSize / 2); // BY DEFAOUFLT 2
+    let start = Math.max(1, page - halfRange);
+    let end = start + rangeSize - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - rangeSize + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          disabled={page === i}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return pages;
+  };
+
+  const handleFilter = async () => {
+    const config = getAuthConfig();
+    console.log('handle filter');
+    
+    try {
+      console.log('handle filter inside try block');
+      
+      setLoading(true);
+
+      const response = await api.get("/filteredSupplierTransactions", {
+        params: {
+          id: selectSupplier,
+          date1: startDate,
+          date2: endDate,
+          page: page,
+          pageSize: pageSize,
+        },...config 
+      });
+
+      console.log('response for filter');
+      console.log(response);
+      
+      
+
+      setTotalPages(Math.ceil(response.data.totalRecords / pageSize));
+
+      setAllTransactions(response.data.transactions);
+    } catch (error) {
+      console.error("Error fetching transaction", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  useEffect(() => {
+    handleFilter();
+
+    if(selectSupplier=="0"){
+      loadAllTransactions()
+    }
+
+  }, [selectSupplier, startDate, endDate, page]); 
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+
   return (
     <div>
       <Header headtext="Supplier Transactions" />
@@ -90,7 +172,8 @@ function SupplierTransaction() {
           value={selectSupplier}
           onChange={(e) => setSelectedSupplier(e.target.value)}
         >
-          <option value="">-- Select a Supplier --</option>
+          <option value="0">-- Select a Supplier --</option>
+          <option value="all_suppliers">-- All Supplier --</option>
 
           {suppliers.length > 0 ? (
             suppliers.map((supplier) => (
@@ -158,8 +241,15 @@ function SupplierTransaction() {
                   >
                     Placed Order
                   </button>
-                  <button onClick={()=>handleRecieveOder(transaction)}>Received Order</button>
-                  <button style={{ margin: "10px" }} onClick={()=>handleChangeTransaction(transaction)}>Add Transaction</button>
+                  <button onClick={() => handleRecieveOder(transaction)}>
+                    Received Order
+                  </button>
+                  <button
+                    style={{ margin: "10px" }}
+                    onClick={() => handleChangeTransaction(transaction)}
+                  >
+                    Add Transaction
+                  </button>
                   <button>Delete</button>
                 </td>
               </tr>
@@ -185,6 +275,3 @@ function SupplierTransaction() {
 }
 
 export default SupplierTransaction;
-
-
-// Backend crashed when placing a order

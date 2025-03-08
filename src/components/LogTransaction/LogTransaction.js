@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import api from '../../api';
 import { useAlert } from '../../context/AlertContext';
@@ -103,7 +104,7 @@ function LogTransaction() {
     try {
       const config = getAuthConfig();
       if (cart.length === 0) {
-        throw new Error("Cart is empty"); // Create and throw a new error with a message
+        throw new Error("Cart is empty"); 
       }
       let cart_ = [];
       for (const item of cart) {

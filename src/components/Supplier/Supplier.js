@@ -15,18 +15,17 @@ export default function Supplier() {
   const[initialLoading,setInitialLoading]=useState(false)
 
   const fetchAllSuppliers=async()=>{
-
+  try{
     const Response=await api.get('/allSuppliers')
     console.log(Response.data);
-    
-    if(Response.data.length>=0){
-      setSuppliers(Response.data)
-    }
-    else{
-      showAlert("Error while loading suppliers")
-    }
-
+    setSuppliers(Response.data)   
   }
+  catch(error){
+    showAlert("Error while loading suppliers")
+  }
+  }
+
+
   useEffect(()=>{
     fetchAllSuppliers()
   },[])
@@ -51,19 +50,20 @@ export default function Supplier() {
     try {
       if(editSupplier){
         await api.put(`/updateSupplier/${editSupplier.id}`,supplier);
+        console.log(supplier)
         setSuppliers((prev)=>prev.map((sup)=>(sup.id===editSupplier.id ? supplier : sup)))
       }else{
         //create new supplier
         const response= await api.post('/suppliers',supplier)
         console.log(response);
-        
+        console.log(supplier)
+
 
         if(response.data.success==false){
           showAlert(`Cannot create this supplier ${response.data.message}`);
           return
         }
         
-  
         setSuppliers((prev)=>[...prev, response.data])
         fetchAllSuppliers()
       }

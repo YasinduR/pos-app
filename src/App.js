@@ -8,6 +8,9 @@ import Products from './components/Products/Products';
 import Transactions from './components/Transactions/Transaction';
 import Categories from './components/Categories/Categories';
 import Delivery from './components/Delivery/Delivery';
+// import GRN from './components/GRN/GRN'
+// import Supplier from './components/suppliers/suppliers';
+
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 import Suppliers from './components/Supplier/Supplier';
@@ -19,6 +22,7 @@ import Users from './components/Users/Users';
 //import Suppliers from './components/Supplier/Supplier'
 
 // ProtectedRoute => to ensure required adminstrative level  
+// ProtectedRoute => to ensure required adminstrative level   
 const App = () => {
   const allRoles = ['admin', 'cashier', 'stock-manager']; // ROLES
   const adminRoles = ['admin']; // ROLES

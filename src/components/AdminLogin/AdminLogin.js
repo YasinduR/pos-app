@@ -16,13 +16,14 @@ function AdminLogin() {
     setError(''); // Clear previous errors
 
     try {
-
       const response = await api.post('/admin/login', { email, password }); // Call the /login endpoint
       
       setAdminData(response.data.user)
-      // Save the token in localStorage
-      localStorage.setItem('token', response.data.token);
+     // Store new tokens
 
+       localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      console.log(localStorage.getItem("refreshToken"),localStorage.getItem("accessToken"))
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);

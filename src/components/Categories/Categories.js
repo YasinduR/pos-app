@@ -19,7 +19,7 @@ function Categories() {
     async function fetchCats() {
       try {
 
-        const config = getAuthConfig(); // token configs
+        const config = await getAuthConfig(); // token configs
         const response = await api.get('/cats',config);
         setCats(response.data);
       } catch (err) {

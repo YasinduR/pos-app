@@ -22,11 +22,11 @@ function Dashboard() {
       {/* Display other admin data here */}
       <ProtectedRoute allowedRoles={roles} ignoreMessage={true}// no access denied message
       >
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', alignItems: 'center', position: 'relative' }}>
+      {/* <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', alignItems: 'center', position: 'relative' }}>
       <Summary type='Income' />
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '2px', height: '80%', backgroundColor: '#000' }} />
       <Summary type='Expense' />
-      </div>
+      </div> */}
       </ProtectedRoute>
     </div>
   );

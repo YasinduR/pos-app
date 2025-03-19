@@ -6,10 +6,11 @@ import { getAuthConfig } from '../../config/authConfig';
 
 function Username({userid}){
   const [user, setUser] = useState(null);
-  const config =  getAuthConfig();
+  
   useEffect(() => {
     async function fetchUser() {
       try {
+        const config =  await getAuthConfig();
         if(!userid){
           setUser(null);
           throw new Error();
@@ -105,7 +106,7 @@ function Transactions() {
       if (!endDate){
         setEndDate(formattedTommorow);
       }
-      const config = getAuthConfig();
+      const config = await await getAuthConfig();
       console.log()
       try {
         
@@ -131,7 +132,7 @@ function Transactions() {
     useEffect(() => {
       async function fetchTransactions() {
         try {
-          const config = getAuthConfig();
+          const config = await getAuthConfig();
           const response = await api.get('/transaction/all',config);
           setTransactions(response.data);
         } catch (err) {
@@ -143,7 +144,7 @@ function Transactions() {
 
       async function fetchUsers() {
         try {
-          const config = getAuthConfig();
+          const config = await getAuthConfig();
           const response = await api.get('/users',config);
           setUsers(response.data);
         } catch (err) {

@@ -4,6 +4,7 @@ import api from '../../api';
 import DialogBox from './DialogBox';
 import styles from './products.module.css';
 import Header from '../Header/Header';
+import { getAuthConfig } from '../../config/authConfig';
 
 function ImageBox({ product}) {  // ImageBox of a product
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -58,6 +59,7 @@ function Products() {
   useEffect(() => {
     async function fetchProducts() {
       try {
+
         const response = await api.get('/items');
         setProducts(response.data);
       } catch (err) {
@@ -71,6 +73,7 @@ function Products() {
 
   const handleSaveProduct = async (raw_product) => {
     try {
+      const config = await getAuthConfig();
       console.log('unFormatted Product:', raw_product);
           // Convert data recieved into valid json 
     const product = {
@@ -84,16 +87,16 @@ function Products() {
       ? raw_product.images.split(',').map((img) => img.trim()) : [], // Default to empty array
     };
 
-    console.log('Formatted Product:', product);
+    //console.log('Formatted Product:', product);
       if (editProduct) {
         // Update existing customer
-        await api.put(`/items/${editProduct.id}`, product);
+        await api.put(`/items/${editProduct.id}`, product,config);
         setProducts((prev) =>
           prev.map((i) => (i.id === editProduct.id ? product : i))
         );
       } else {
         // Create new customer
-        const response = await api.post('/items', product);
+        const response = await api.post('/items', product,config);
         setProducts((prev) => [...prev, response.data]);
       }
     } catch (err) {
@@ -118,6 +121,7 @@ function Products() {
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
+      const config =  await getAuthConfig();
       try {
         await api.delete(`/items/${id}`);
         setProducts(products.filter((item) => item.id !== id));

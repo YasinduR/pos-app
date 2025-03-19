@@ -3,7 +3,7 @@ import Header from '../Header/Header';
 import api from '../../api';
 import { useAlert } from '../../context/AlertContext';
 import DialogBox from './DialogBox';
-
+import { getAuthConfig } from '../../config/authConfig';
 export default function Supplier() {
 
   const[suppliers,setSuppliers]=useState([]);
@@ -16,7 +16,8 @@ export default function Supplier() {
 
   const fetchAllSuppliers=async()=>{
   try{
-    const Response=await api.get('/allSuppliers')
+    const config = await getAuthConfig();
+    const Response=await api.get('/allSuppliers',config)
     console.log(Response.data);
     setSuppliers(Response.data)   
   }
@@ -48,13 +49,15 @@ export default function Supplier() {
   const handleSaveSupplier=async(supplier)=>{
  
     try {
+      const config = await getAuthConfig();
       if(editSupplier){
-        await api.put(`/updateSupplier/${editSupplier.id}`,supplier);
+        
+        await api.put(`/updateSupplier/${editSupplier.id}`,supplier,config);
         console.log(supplier)
         setSuppliers((prev)=>prev.map((sup)=>(sup.id===editSupplier.id ? supplier : sup)))
       }else{
         //create new supplier
-        const response= await api.post('/suppliers',supplier)
+        const response= await api.post('/suppliers',supplier,config)
         console.log(response);
         console.log(supplier)
 
@@ -80,9 +83,9 @@ export default function Supplier() {
     console.log(id);
     
       try {
-  
+        const config = await getAuthConfig();
     
-    await api.delete(`/deleteSupplier/${id}`);
+    await api.delete(`/deleteSupplier/${id}`,config);
     setSuppliers(suppliers.filter((supplier)=>supplier.id !==id));
         
       } catch (error) {

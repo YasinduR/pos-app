@@ -9,7 +9,7 @@ function OrderDetails({ order, onClose,changeStatus }) {
   const [newStatus, setNewStatus] = useState(order.status); // Track selected status
 
   async function fetchUser() {
-    const config  = getAuthConfig();
+    const config  = await getAuthConfig();
     try {
       if(!order.customerid||order.customerid==="Not-Registered" ){
         setUser(null);

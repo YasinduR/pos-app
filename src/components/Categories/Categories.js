@@ -33,7 +33,7 @@ function Categories() {
 
   const handleSaveCat = async (cat) => {
     try {
-      const config = getAuthConfig(); // token configs
+      const config = await getAuthConfig(); // token configs
       if (editCat) {
         // Update existing customer
         await api.put(`/cats/${editCat.id}`, cat,config);
@@ -64,7 +64,7 @@ function Categories() {
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
-      const config = getAuthConfig(); // token configs
+      const config = await getAuthConfig(); // token configs
       try {
         await api.delete(`/cats/${id}`,config);
         setCats(cats.filter((cat) => cat.id !== id));

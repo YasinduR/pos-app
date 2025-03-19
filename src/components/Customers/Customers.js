@@ -19,7 +19,7 @@ function Customers() {
   useEffect(() => {
     async function fetchCustomers() {
       try {
-        const config = getAuthConfig();
+        const config = await getAuthConfig();
         const response = await api.get('/users',config);
         setCustomers(response.data);
       } catch (err) {
@@ -33,7 +33,7 @@ function Customers() {
 
   const handleSaveCustomer = async (customer) => {
     try {
-      const config = getAuthConfig();
+      const config = await getAuthConfig();
       if (editCustomer) {
         // Update existing customer
         

@@ -56,7 +56,7 @@ useEffect(()=>{
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const config  = getAuthConfig();
+        const config  = await getAuthConfig();
         const response = await api.get('/cats',config);
         setCategories(response.data || []);
       } catch (error) {

@@ -6,9 +6,10 @@ import { getAuthConfig } from '../../config/authConfig';
 
 function Username({userid}){
   const [user, setUser] = useState(null);
-  const config =  getAuthConfig();
+  
   useEffect(() => {
     async function fetchUser() {
+      const config =  await getAuthConfig();
       try {
         if (!userid || userid === "Not-Registered") {
           setUser(null);
@@ -100,7 +101,7 @@ function Delivery() {
 
     const handleStatusChange = async (orderId, newStatus) => {
       try {
-        const config = getAuthConfig();
+        const config = await getAuthConfig();
         const updated =await api.put(`/orders/status/${orderId}`, { status: newStatus }, config);
         //console.log("Status updated",updated)
         setSelectedOrders(updated.data.updatedCourier)
@@ -115,7 +116,7 @@ function Delivery() {
 
     const handleCourierService = async (orderId, courier) => {
       try {
-        const config = getAuthConfig();
+        const config = await getAuthConfig();
         //await api.put(`/orders/${orderId}/status`, { status: newStatus }, config);
         // buiness logic to change courier here
         // Refresh orders after updating status
@@ -138,10 +139,10 @@ function Delivery() {
       if (!endDate){
         setEndDate(formattedTommorow);
       }
-      const config = getAuthConfig();
+     // const config = await getAuthConfig();
       //console.log()
       try {
-        
+        const config = await getAuthConfig();
         setLoading(true);
         const response = await api.get('/orders/find', {
           params: { id: selectedUser,timebased:isTimeFilterEnabled, date1: startDate, date2: endDate,status:status, page: page, pagesize: pageSize },
@@ -164,7 +165,7 @@ function Delivery() {
     useEffect(() => {
       async function fetchorders() {
         try {
-          const config = getAuthConfig();
+          const config = await getAuthConfig();
           const response = await api.get('/Orders/all',config);
           setOrders(response.data);
         } catch (err) {
@@ -176,7 +177,7 @@ function Delivery() {
 
       async function fetchUsers() {
         try {
-          const config = getAuthConfig();
+          const config = await getAuthConfig();
           const response = await api.get('/users',config);
           setUsers(response.data);
         } catch (err) {

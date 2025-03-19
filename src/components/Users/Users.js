@@ -19,7 +19,7 @@ function Users() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const config = getAuthConfig(); // token configs
+        const config = await getAuthConfig(); // token configs
         // Set the token in the Authorization header
         const response = await api.get('/admin', config);
         setUsers(response.data);
@@ -35,7 +35,7 @@ function Users() {
   
   const handleSaveUser = async (user) => {
     try {
-      const config = getAuthConfig(); 
+      const config = await getAuthConfig(); 
       if (editUser) {
         // Update existing customer
         await api.put(`/admin/${editUser.id}`, user,config);
@@ -66,7 +66,7 @@ function Users() {
   
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
-      const config = getAuthConfig(); 
+      const config = await getAuthConfig(); 
       try {
         await api.delete(`/admin/${id}`,config);
         setUsers(users.filter((customer) => customer.id !== id));

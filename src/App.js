@@ -27,7 +27,7 @@ const App = () => {
     { path: '/dashboard', element: <Dashboard /> },
     { path: '/users', 
       element:             
-    <ProtectedRoute allowedRoles={adminRoles}> 
+    <ProtectedRoute allowedRoles={allRoles}> 
       <Users />
     </ProtectedRoute> },
     { path: '/customers', 

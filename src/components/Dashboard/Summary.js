@@ -27,7 +27,7 @@ function Summary({type ='Income'}) {
 
     useEffect(() => {
       async function fetchTransactions() {
-        const config = getAuthConfig();
+        const config = await getAuthConfig();
         const endpoint = type === 'Income' ? '/transaction/all' : '/stransaction/all';
         try {
           const response = await api.get(endpoint,config);
@@ -52,7 +52,7 @@ function Summary({type ='Income'}) {
               setEndDate(formattedTommorow);
             }
             const endpoint = type === 'Income' ? '/transaction/bydate' : '/stransaction/bydate';
-            const config = getAuthConfig();
+            const config = await getAuthConfig();
             try {
               setLoading(true);
               setError(null);

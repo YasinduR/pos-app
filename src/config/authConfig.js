@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { logout } from '../utility/logout';
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 
 export const getAuthConfig = async () => {
@@ -21,14 +21,15 @@ export const getAuthConfig = async () => {
       return accessToken; // Return the new access token for use
     } catch (error) {
       console.error("Failed to refresh token:", error);
-      throw error; // Propagate error to be handled by the calling function
+      logout();
+      return null;
     }
   };
 
   let token = localStorage.getItem("accessToken");
 
   if (!token) {
-    throw new Error("No token found");
+    return null
   }
 
   // Check if token is expired by decoding the JWT and checking the expiry timestamp

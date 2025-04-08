@@ -1,0 +1,73 @@
+/* table-style.css */
+
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+button, .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Default button style */
+button, .btn {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+button:hover, .btn:hover {
+    background-color: #d5d5d5;
+}
+
+/* Primary button style */
+button.primary, .btn.primary {
+    background-color: #009879;
+    color: #fff;
+}
+
+button.primary:hover, .btn.primary:hover {
+    background-color: #007f67;
+}
+
+/* Danger button style */
+button.danger, .btn.danger {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+button.danger:hover, .btn.danger:hover {
+    background-color: #c0392b;
+}
+
+

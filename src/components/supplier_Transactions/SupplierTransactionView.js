@@ -7,7 +7,8 @@ export default function SupplierTransactionView({
   isOpen,
   onClose,
   initialTransaction,
-}) {
+})
+ {
   const [supplierOrder, setSupplierOrder] = useState([]);
   const [billAmount, setBillAmount] = useState(0);
   const [discount, setDiscount] = useState(0);

@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import api from "../../api";
 import DialogBox from "./DialogBox";
+import "./Tables.css";
+
 
 import SupplierTransactionView from "./SupplierTransactionView";
 import StockUpdate from "./StockUpdate";
 import PaymentUpdate from "./PaymentUpdate";
+import { useAlert } from "../../context/AlertContext";
 
 import { getAuthConfig } from "../../config/authConfig";
 
@@ -16,6 +19,7 @@ function SupplierTransaction() {
   const [selectSupplier, setSelectedSupplier] = useState("");
   const [allTransactions, setAllTransactions] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const { showAlert } = useAlert();
 
   const [showSupplierTransactionView, setShowSupplierTransactionView] =
     useState(false);
@@ -27,11 +31,11 @@ function SupplierTransaction() {
   const [loading, setLoading] = useState(true);
   const [supplierNames, setSupplierNames] = useState({});
 
-
   const [page, setPage] = useState(1);
-  const pageSize = 5; // Number of transactions per page
+  const [pageSize, setPageSize] = useState(2);
   const [totalPages, setTotalPages] = useState(1);
-
+  const [totalResults, setTotalResults] = useState(0);
+  const [status, setStatus] = useState("");
   const config = getAuthConfig;
 
   // Fetch all suppliers from API
@@ -56,28 +60,35 @@ function SupplierTransaction() {
     setEndDate(toDate);
   };
 
-
+  //open transaction view
   const handleSupplierTransactionView = (transaction) => {
     setSupplierOrder(transaction);
     setShowSupplierTransactionView(true);
   };
 
+  //open stock update
   const handleStockUpdate = (transaction) => {
     setSupplierOrder(transaction);
     setShowStockUpdate(true);
   };
 
+  //open transaction update
   const handleTransactionUpdate = (transaction) => {
     setSupplierOrder(transaction);
     setShowPaymentUpdate(true);
   };
 
-  // Load transactions
   const loadAllTransactions = async () => {
     try {
       const response = await api.get("/supplierTransactions");
+
       if (response.data && response.data.length > 0) {
         setAllTransactions(response.data);
+        setTotalResults(response.data.length);
+
+        const totalPages = Math.ceil(totalResults / pageSize);
+
+        setTotalPages(totalPages);
       } else {
         setAllTransactions([]);
       }
@@ -87,27 +98,69 @@ function SupplierTransaction() {
     }
   };
 
-  useEffect(() => {
-    fetchAllSuppliers();
-    setDate();
-    loadAllTransactions();
-  }, []);
 
-  const renderPageNumbers = () => {
-    //Pages under the search
-    const pages = [];
-
-    const rangeSize = 5; // Number of page indication APPLIED
-    const halfRange = Math.floor(rangeSize / 2); // BY DEFAOUFLT 2
-    let start = Math.max(1, page - halfRange);
-    let end = start + rangeSize - 1;
-
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, end - rangeSize + 1);
+  //load filtered transactions
+  const handleAllFilters = async () => {
+    if (selectSupplier == "all_suppliers" || selectSupplier == " ") {
+      setSelectedSupplier("0");
     }
 
-    for (let i = start; i <= end; i++) {
+    try {
+      const response = await api.get("/filteredSupplierTransactions", {
+        params: {
+          page: page,
+          pageSize: pageSize,
+          Date1: startDate,
+          Date2: endDate,
+          supplierId: selectSupplier,
+          status: status,
+        },
+      });
+
+      if (response.data.success) {
+        let fillteredData = response.data.data.transactions || 0;
+        let TotalRecords = response.data.data.totalRecords;
+
+        setAllTransactions(fillteredData);
+        setTotalResults(TotalRecords);
+      } else {
+        showAlert("Error while loading data");
+      }
+    } catch (error) {
+      console.error("Error while retrieving data:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleAllFilters();
+    const totalPages = Math.ceil(totalResults / pageSize);
+    setTotalPages(totalPages);
+  }, [
+    page,
+    selectSupplier,
+    startDate,
+    endDate,
+    totalResults,
+    totalResults,
+    pageSize,
+    status
+  ]);
+
+  //if changing the search fields set the page number to 1
+  useEffect(() => {
+    setPage(1);
+  }, [selectSupplier, startDate, endDate, pageSize]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
+  const renderPageNumbers = () => {
+    let pages = [];
+
+    for (let i = 1; i <= totalPages; i++) {
       pages.push(
         <button
           key={i}
@@ -118,61 +171,20 @@ function SupplierTransaction() {
         </button>
       );
     }
-
     return pages;
   };
 
-  const handleFilter = async () => {
-    const config = getAuthConfig();
-    console.log("handle filter");
-
-    try {
-      console.log("handle filter inside try block");
-
-      setLoading(true);
-
-      const response = await api.get("/filteredSupplierTransactions", {
-        params: {
-          id: selectSupplier,
-          date1: startDate,
-          date2: endDate,
-          page: page,
-          pageSize: pageSize,
-        },
-        ...config,
-      });
-
-      console.log("response for filter");
-      console.log(response);
-
-      setTotalPages(Math.ceil(response.data.totalRecords / pageSize));
-
-      setAllTransactions(response.data.transactions);
-    } catch (error) {
-      console.error("Error fetching transaction", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    handleFilter();
+    fetchAllSuppliers();
+    setDate();
+    loadAllTransactions();
+  }, []);
 
-    if (selectSupplier == "0") {
-      loadAllTransactions();
-    }
-  }, [selectSupplier, startDate, endDate, page]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setPage(newPage);
-    }
-  };
-
- 
   const getSupplierNames = async () => {
     try {
-      const uniqueSupplierIds = [...new Set(allTransactions.map(t => t.supplierId))]; // Get unique supplier IDs
+      const uniqueSupplierIds = [
+        ...new Set(allTransactions.map((t) => t.supplierId)),
+      ]; // Get unique supplier IDs
 
       const fetchedNames = {}; // Temporary storage for supplier names
 
@@ -190,7 +202,7 @@ function SupplierTransaction() {
         })
       );
 
-      setSupplierNames(prevNames => ({ ...prevNames, ...fetchedNames }));
+      setSupplierNames((prevNames) => ({ ...prevNames, ...fetchedNames }));
     } catch (error) {
       console.error("Error fetching supplier names:", error);
     }
@@ -202,18 +214,19 @@ function SupplierTransaction() {
     }
   }, [allTransactions]);
 
+  console.log(allTransactions);
+
   return (
     <div>
       <Header headtext="Supplier Transactions" />
-
       <div>
         <label>Supplier</label>
         <select
           value={selectSupplier}
           onChange={(e) => setSelectedSupplier(e.target.value)}
         >
-          <option value="0">-- Select a Supplier --</option>
-          <option value="all_suppliers">-- All Supplier --</option>
+          {/* <option value="0">-- Select a Supplier --</option> */}
+          <option value="0">-- All Supplier --</option>
 
           {suppliers.length > 0 ? (
             suppliers.map((supplier) => (
@@ -254,7 +267,25 @@ function SupplierTransaction() {
         </div>
       </div>
 
-      <table>
+      <div>
+        <label>Results per page:</label>
+        <input
+          type="number"
+          value={pageSize}
+          onChange={(e) => setPageSize(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label>Status:</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="0">--All--</option>
+          <option value="1">pending</option>
+          <option value="2">completed</option>
+        </select>
+      </div>
+
+      <table className="styled-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -272,7 +303,6 @@ function SupplierTransaction() {
               // created_at
 
               <tr key={transaction.id}>
-                {/* <td>{index + 1}</td> */}
                 <th>
                   {new Date(transaction.created_at).toLocaleDateString() || "-"}
                 </th>
@@ -280,9 +310,7 @@ function SupplierTransaction() {
                 <td>{transaction.amount - transaction.discount || 0}</td>
                 <td>{transaction.paidAmount || 0}</td>
                 <td>{transaction.type}</td>
-                <td>
-                  {transaction.status || "in progress"}
-                </td>
+                <td>{transaction.status || "in progress"}</td>
                 <td>
                   <button
                     onClick={() => handleSupplierTransactionView(transaction)}
@@ -299,7 +327,6 @@ function SupplierTransaction() {
                   >
                     Transaction Update
                   </button>
-                  <button>cancle</button>
                 </td>
               </tr>
             ))
@@ -313,12 +340,28 @@ function SupplierTransaction() {
         </tbody>
       </table>
 
-      {/* <DialogBox
-        isOpen={showDialog}
-        onClose={() => setShowDialog(false)}
-        initialTransaction={supplierOrder}
-        transactionType={transactionType}
-      /> */}
+      {/* need to diplay the pages in here how to do so */}
+      <div style={{ marginTop: "20px" }}>
+        {totalPages === 1 ? (
+          <button>{page}</button> // Display the current page number when there is only one page
+        ) : (
+          <>
+            <button
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+            >
+              Prev
+            </button>
+            {renderPageNumbers()}
+            <button
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+            >
+              Next
+            </button>
+          </>
+        )}
+      </div>
 
       <SupplierTransactionView
         isOpen={showSupplierTransactionView}

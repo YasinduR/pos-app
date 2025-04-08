@@ -1,0 +1,103 @@
+/* Overlay for the entire dialog box */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  /* Styling for the dialog box */
+  .dialog-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+  }
+  
+  /* Header of the dialog box */
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .dialog-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .close-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .close-btn:hover {
+    background: #c0392b;
+  }
+  
+  /* Dialog body for displaying data */
+  .dialog-body {
+    padding: 10px;
+  }
+  
+  /* Display the informational data (ID, Date) */
+  .dialog-info {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .dialog-info div {
+    margin-bottom: 5px;
+  }
+  
+  .dialog-info strong {
+    color: #333;
+  }
+  
+  /* Style the stock update table */
+  .stock-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .stock-table th, .stock-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .stock-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .stock-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .stock-table td {
+    font-size: 0.9rem;
+  }
+  
+  .stock-table td:last-child {
+    text-align: right;
+  }
+  

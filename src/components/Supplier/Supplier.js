@@ -107,7 +107,6 @@ export default function Supplier() {
     <table>
       <thead>
         <tr>
-          <th>#</th>
           <th>Name</th>
           <th>Address</th>
           <th>Phone Number</th>

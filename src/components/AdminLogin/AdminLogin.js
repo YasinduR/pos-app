@@ -21,9 +21,9 @@ function AdminLogin() {
       setAdminData(response.data.user)
      // Store new tokens
 
-       localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
-      console.log(localStorage.getItem("refreshToken"),localStorage.getItem("accessToken"))
+      //console.log(localStorage.getItem("refreshToken"),localStorage.getItem("accessToken"))
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);

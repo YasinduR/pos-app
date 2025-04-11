@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import "../../styles/DialogBox.css";
 import { useAlert } from "../../context/AlertContext";
 import api from '../../api';
+import Transactions from '../Transactions/Transaction';
 
 export default function SupplierTransactionView({
   isOpen,
@@ -47,6 +48,12 @@ export default function SupplierTransactionView({
 
 
   useEffect(() => {
+    if(isOpen){
+      console.log("supplierview")
+      console.log(initialTransaction)  // Build according to this 
+      console.log("supplierview")
+    }
+    
     getSupplierName();
     displaySupplierOrder();
   }, [isOpen]);
@@ -55,10 +62,6 @@ export default function SupplierTransactionView({
 
   if (!isOpen) return null; 
 
-  console.log('supplier Oder');
-  
-
-  console.log(supplierOrder);
   
 
   return (
@@ -107,7 +110,7 @@ export default function SupplierTransactionView({
                   supplierOrder.map((order, index) => (
                     <tr key={order.itemId}>
                       <td>{index + 1}</td>
-                      <td>{order.itemName}</td>
+                      <td>{order.name}</td>
                       <td>{order.RequestedAmount}</td>
                       <td>{order.unitPrice.toFixed(2)}</td>
                       <td>{order.AcceptedAmount}</td>

@@ -11,8 +11,8 @@ import Delivery from './components/Delivery/Delivery';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 import Suppliers from './components/Supplier/Supplier';
-import SupplierTransaction from './components/supplier_Transactions/SupplierTransaction';
-import SupplierOrders from './components/supplier_Orders/SupplierOrders';
+import SupplierTransaction from './components/Supplier_Transactions/SupplierTransaction';
+import PlaceOrders from './components/Place_Orders/PlaceOrders';
 
 
 import Users from './components/Users/Users';
@@ -70,10 +70,10 @@ const App = () => {
               <ProtectedRoute allowedRoles={allRoles}>
                  <SupplierTransaction/>
               </ProtectedRoute>   },
-                { path: '/supplierOrders', 
+                { path: '/placeOrders', 
                   element:             
                   <ProtectedRoute allowedRoles={allRoles}>
-                     <SupplierOrders/>
+                   <PlaceOrders/>
                   </ProtectedRoute>   },
           
             

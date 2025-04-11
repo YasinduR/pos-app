@@ -2,8 +2,10 @@ import Header from "../Header/Header";
 import api from "../../api";
 import { useAlert } from "../../context/AlertContext";
 import { useState, useEffect } from "react";
+import { getAuthConfig } from "../../config/authConfig";
 
-export default function SupplierOrders() {
+
+export default function PlaceOrders() {
   const [suppliers, setSuppliers] = useState([]);
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState("");
@@ -11,17 +13,27 @@ export default function SupplierOrders() {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [supplierOrder, setSupplierOrder] = useState([]);
+  const billTotal = supplierOrder.reduce(
+    (total, order) => total + (order.price || 0) * order.quantity,
+    0
+  );
+  const [customBillTotal, setCustomBillTotal] = useState(billTotal);
   const { showAlert } = useAlert();
-  const [discount, setDiscount] = useState(0);
+  // const [discount, setDiscount] = useState(0);
 
   useEffect(() => {
     fetchSuppliers();
     fetchItems();
   }, []);
 
+  useEffect(() => {
+    setCustomBillTotal(billTotal);
+  }, [billTotal]);
+
   async function fetchSuppliers() {
     try {
-      const response = await api.get("/allSuppliers");
+      const config = await getAuthConfig();
+      const response = await api.get("/allSuppliers",config);
       setSuppliers(response.data);
     } catch (error) {
       setMessage("Failed to load suppliers");
@@ -66,14 +78,9 @@ export default function SupplierOrders() {
   };
 
   // Calculate total bill
-  const billTotal = supplierOrder.reduce(
-    (total, order) => total + (order.price || 0) * order.quantity,
-    0
-  );
+
 
   const createSupplierTransaction = async () => {
-  
-    console.log('create oder');
     
     if (!selectedSupplier) {
       showAlert("Please select a supplier to process the request");
@@ -82,34 +89,36 @@ export default function SupplierOrders() {
 
     try {
 
-      console.log('try block');
-      
       const supplierTransaction = {
         supplierId: selectedSupplier,
-        amount: billTotal,
-        discount: discount,
+        amount: customBillTotal,
+        discount: 0,
         type: "POD",
-        supplierOrderData: supplierOrder,
+        SupplierOrder: supplierOrder.map((item) => ({
+          itemId: item.id,
+          RequestedAmount: item.quantity,
+          AcceptedAmount: 0
+        })),
         paidAmount: 0,
       };
+
+      console.log(supplierTransaction);
 
       const response = await api.post(
         "/supplierTransaction",
         supplierTransaction
       );
 
-      console.log('supplier oder respoonse');
-      console.log(response);
-      
+   
       
 
       if (response.data.success) {
-        showAlert("Oder for the supplier created successfully");
+        showAlert("Order for the supplier created successfully");
 
         setSupplierOrder([]);
         setSelectedItem(null);
         setQuantity(1);
-        setDiscount(0);
+        // setDiscount(0);
       } else {
         showAlert(
           `Error while creating the supplier Oder, ${response.data.message}`
@@ -122,9 +131,9 @@ export default function SupplierOrders() {
 
   return (
     <div>
-      <Header headtext="Placing Orders for the Supplier" />
+      <Header headtext="Place Order" />
 
-      <label>Suppliers:</label>
+      <label>Supplier:</label>
       <select
         value={selectedSupplier || "null"}
         onChange={(e) =>
@@ -140,7 +149,7 @@ export default function SupplierOrders() {
       </select>
 
       <div>
-        <label>Products:</label>
+        <label>Product:</label>
         <select
           value={selectedItem || "null"}
           onChange={(e) =>
@@ -163,7 +172,7 @@ export default function SupplierOrders() {
           onChange={(e) => setQuantity(Number(e.target.value))}
         />
 
-        <button onClick={handleAddToTable}>ADD TO LIST</button>
+        <button onClick={handleAddToTable}>Add</button>
       </div>
 
       <div>
@@ -205,10 +214,12 @@ export default function SupplierOrders() {
         </table>
 
         <div>
-          <label>Bill total:</label>
-          <span> ${billTotal.toFixed(2)}</span>
-        </div>
-        <div>
+  <label>Total value of stock:</label>
+  <span>
+    {billTotal}
+  </span>
+</div>
+        {/* <div>
           <label>Discount:</label>
           <input
             type="number"
@@ -216,21 +227,26 @@ export default function SupplierOrders() {
             value={discount}
             onChange={(e) => {
               const inputDiscount = Number(e.target.value);
-              if (inputDiscount > billTotal) {
+              if (inputDiscount > customBillTotal) {
                 showAlert("Discount cannot exceed the total bill", "ok");
-                setDiscount(billTotal);
+                setDiscount(customBillTotal);
               } else {
                 setDiscount(inputDiscount);
               }
             }}
           />
-        </div>
+        </div> */}
         <div>
-          <label>Total after Discount:</label>
-          <input readOnly value={(billTotal - discount).toFixed(2)} />
-        </div>
+  <label>Bill total :</label>
+        <input
+       type="number"
+    min="0"
+    value={customBillTotal}
+    onChange={(e) => setCustomBillTotal(Number(e.target.value))}
+  />
+</div>
         <div>
-          <button onClick={createSupplierTransaction}>Place Oder</button>
+          <button onClick={createSupplierTransaction}>Place the Order</button>
         </div>
       </div>
     </div>

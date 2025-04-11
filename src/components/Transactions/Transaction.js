@@ -106,7 +106,7 @@ function Transactions() {
       if (!endDate){
         setEndDate(formattedTommorow);
       }
-      const config = await await getAuthConfig();
+      const config = await getAuthConfig();
       console.log()
       try {
         

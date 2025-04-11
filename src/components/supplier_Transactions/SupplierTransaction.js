@@ -3,169 +3,72 @@ import Header from "../Header/Header";
 import api from "../../api";
 import DialogBox from "./DialogBox";
 import "./Tables.css";
-
-
 import SupplierTransactionView from "./SupplierTransactionView";
 import StockUpdate from "./StockUpdate";
 import PaymentUpdate from "./PaymentUpdate";
 import { useAlert } from "../../context/AlertContext";
-
 import { getAuthConfig } from "../../config/authConfig";
 
 function SupplierTransaction() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [suppliers, setSuppliers] = useState([]);
-  const [selectSupplier, setSelectedSupplier] = useState("");
-  const [allTransactions, setAllTransactions] = useState([]);
+  const [selectSupplier, setSelectedSupplier] = useState("All");
+  const [Transactions, setTransactions] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const { showAlert } = useAlert();
 
-  const [showSupplierTransactionView, setShowSupplierTransactionView] =
-    useState(false);
+  const [showSupplierTransactionView, setShowSupplierTransactionView] = useState(false);
   const [showStockUpdate, setShowStockUpdate] = useState(false);
   const [showPaymentUpdate, setShowPaymentUpdate] = useState(false);
 
   const [supplierOrder, setSupplierOrder] = useState(null);
-  const [transactionType, setTransactionType] = useState("");
+  // const [transactionType, setTransactionType] = useState("");
   const [loading, setLoading] = useState(true);
   const [supplierNames, setSupplierNames] = useState({});
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(2);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalResults, setTotalResults] = useState(0);
-  const [status, setStatus] = useState("");
-  const config = getAuthConfig;
 
-  // Fetch all suppliers from API
-  const fetchAllSuppliers = async () => {
-    try {
-      const response = await api.get("/allSuppliers");
-      setSuppliers(response.data);
-    } catch (error) {
-      console.error("Error fetching suppliers:", error);
-    }
-  };
-
-  const setDate = () => {
+  const [status, setStatus] = useState("All");
+  const [products, setProducts] = useState([]);
+  
+  // Date setup
     const today = new Date();
-    const fromDate = today.toISOString().split("T")[0];
+    const tommorrow  = today;
+    tommorrow.setDate(tommorrow.getDate() + 1);
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDay  = today.getDate();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);  // first day of current month
+    const formattedTommorow = tommorrow.toISOString().split('T')[0]; // Format as "YYYY-MM-DD"
+    const formattedStartDate = firstDayOfMonth.toISOString().split('T')[0]; // Format as "YYYY-MM-DD"
 
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    const toDate = tomorrow.toISOString().split("T")[0];
-
-    setStartDate(fromDate);
-    setEndDate(toDate);
-  };
-
-  //open transaction view
-  const handleSupplierTransactionView = (transaction) => {
-    setSupplierOrder(transaction);
-    setShowSupplierTransactionView(true);
-  };
-
-  //open stock update
-  const handleStockUpdate = (transaction) => {
-    setSupplierOrder(transaction);
-    setShowStockUpdate(true);
-  };
-
-  //open transaction update
-  const handleTransactionUpdate = (transaction) => {
-    setSupplierOrder(transaction);
-    setShowPaymentUpdate(true);
-  };
-
-  const loadAllTransactions = async () => {
-    try {
-      const response = await api.get("/supplierTransactions");
-
-      if (response.data && response.data.length > 0) {
-        setAllTransactions(response.data);
-        setTotalResults(response.data.length);
-
-        const totalPages = Math.ceil(totalResults / pageSize);
-
-        setTotalPages(totalPages);
-      } else {
-        setAllTransactions([]);
-      }
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      setAllTransactions([]);
-    }
-  };
+  // Page setup
+  const [page, setPage] = useState(1);
+  const pageSize = 2; // Number of transactions per page
+  const [totalPages,settotalPages] =useState(1);
 
 
-  //load filtered transactions
-  const handleAllFilters = async () => {
-    if (selectSupplier == "all_suppliers" || selectSupplier == " ") {
-      setSelectedSupplier("0");
+  const renderPageNumbers = () => {  //Pages under the search
+    const pages = [];
+    const rangeSize = 5; // Number of page indication APPLIED
+    const halfRange = Math.floor(rangeSize / 2); // BY DEFAOUFLT 2
+    let start = Math.max(1, page - halfRange); 
+    let end = start + rangeSize - 1;
+  
+    // Adjust the range if it exceeds totalPages
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - rangeSize + 1); // Ensure the range size is maintained
     }
 
-    try {
-      const response = await api.get("/filteredSupplierTransactions", {
-        params: {
-          page: page,
-          pageSize: pageSize,
-          Date1: startDate,
-          Date2: endDate,
-          supplierId: selectSupplier,
-          status: status,
-        },
-      });
 
-      if (response.data.success) {
-        let fillteredData = response.data.data.transactions || 0;
-        let TotalRecords = response.data.data.totalRecords;
-
-        setAllTransactions(fillteredData);
-        setTotalResults(TotalRecords);
-      } else {
-        showAlert("Error while loading data");
-      }
-    } catch (error) {
-      console.error("Error while retrieving data:", error);
-    }
-  };
-
-  useEffect(() => {
-    handleAllFilters();
-    const totalPages = Math.ceil(totalResults / pageSize);
-    setTotalPages(totalPages);
-  }, [
-    page,
-    selectSupplier,
-    startDate,
-    endDate,
-    totalResults,
-    totalResults,
-    pageSize,
-    status
-  ]);
-
-  //if changing the search fields set the page number to 1
-  useEffect(() => {
-    setPage(1);
-  }, [selectSupplier, startDate, endDate, pageSize]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setPage(newPage);
-    }
-  };
-
-  const renderPageNumbers = () => {
-    let pages = [];
-
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = start; i <= end; i++) {
       pages.push(
         <button
           key={i}
           onClick={() => handlePageChange(i)}
           disabled={page === i}
+          
         >
           {i}
         </button>
@@ -174,47 +77,280 @@ function SupplierTransaction() {
     return pages;
   };
 
-  useEffect(() => {
-    fetchAllSuppliers();
-    setDate();
-    loadAllTransactions();
-  }, []);
+  const handleNextPage = () =>{
+    if(page<totalPages){
+      setPage(page+1);
+    }
+  }
 
-  const getSupplierNames = async () => {
+  const handlePreviousPage = () =>{
+    if(page>1){
+      setPage(page-1);
+    }
+  }
+
+  const handlePageChange = (i) =>{
+    if(i>=1 && i<=totalPages){
+      setPage(i);
+    }
+  }
+
+  // Fetch all suppliers from API
+  const fetchAllSuppliers = async () => {
     try {
-      const uniqueSupplierIds = [
-        ...new Set(allTransactions.map((t) => t.supplierId)),
-      ]; // Get unique supplier IDs
-
-      const fetchedNames = {}; // Temporary storage for supplier names
-
-      await Promise.all(
-        uniqueSupplierIds.map(async (supplierId) => {
-          if (supplierId && !supplierNames[supplierId]) {
-            try {
-              const response = await api.get(`/supplier/${supplierId}`);
-              fetchedNames[supplierId] = response.data.name;
-            } catch (error) {
-              console.error(`Error fetching supplier ${supplierId}:`, error);
-              fetchedNames[supplierId] = "Unknown Supplier"; // Default if error occurs
-            }
-          }
-        })
-      );
-
-      setSupplierNames((prevNames) => ({ ...prevNames, ...fetchedNames }));
+      const config = await getAuthConfig();
+      const response = await api.get("/allSuppliers",config);
+      setSuppliers(response.data);
     } catch (error) {
-      console.error("Error fetching supplier names:", error);
+      console.error("Error fetching suppliers:", error);
+    }
+  };
+
+  // products
+  const fetchProducts = async () => {
+    try {
+      
+      const response = await api.get('/items');
+      setProducts(response.data);
+    } catch (err) {
+      console.error("Error catching products:", err);
+    }
+  }
+  
+  // const setDate = () => {
+  //   const today = new Date();
+  //   const fromDate = today.toISOString().split("T")[0];
+
+  //   const tomorrow = new Date();
+  //   tomorrow.setDate(today.getDate() + 1);
+  //   const toDate = tomorrow.toISOString().split("T")[0];
+
+  //   setStartDate(fromDate);
+  //   setEndDate(toDate);
+  // };
+
+
+
+  const enrichTransactionWithProducts = (transaction) => {
+    try {
+      console.log(products);
+      // Parse the JSON string if it's a string
+      const supplierOrder = typeof transaction.SupplierOrder === 'string' 
+        ? JSON.parse(transaction.SupplierOrder) 
+        : transaction.SupplierOrder || [];
+  
+      // Ensure it's an array
+      const orderArray = Array.isArray(supplierOrder) ? supplierOrder : [];
+  
+      const enrichedOrder = orderArray.map(item => {
+        const product = products.find(p => p.id === item.itemId); // Note: using itemId
+        return {
+          ...item,
+          name: product ? product.name : "Unknown Product",
+          stock: product ? product.stock : 0,
+          unitPrice: product ? product.price : 0,
+        };
+      });
+  
+      return {
+        ...transaction,
+        SupplierOrder: enrichedOrder,
+        supplierName: suppliers.find(s => s.id === transaction.supplierId)?.name || "N/A",
+      };
+    } catch (error) {
+      console.error("Error enriching transaction:", error);
+      return {
+        ...transaction,
+        supplierName: suppliers.find(s => s.id === transaction.supplierId)?.name || "N/A",
+      };
+    }
+  };
+
+
+ //open transaction view
+const handleSupplierTransactionView = (transaction) => {
+  const enrichedTransaction = enrichTransactionWithProducts(transaction);
+  setSupplierOrder(enrichedTransaction);
+  console.log(enrichedTransaction);
+  setShowSupplierTransactionView(true);
+};
+
+//open stock update
+const handleStockUpdate = (transaction) => {
+  const enrichedTransaction = enrichTransactionWithProducts(transaction);
+  setSupplierOrder(enrichedTransaction);
+  setShowStockUpdate(true);
+};
+
+//open transaction update
+const handleTransactionUpdate = (transaction) => {
+  const enrichedTransaction = enrichTransactionWithProducts(transaction);
+  setSupplierOrder(enrichedTransaction);
+  
+  setShowPaymentUpdate(true);
+};
+
+  // const loadAllTransactions = async () => {
+  //   try {
+  //     const response = await api.get("/supplierTransactions");
+
+  //     if (response.data && response.data.length > 0) {
+  //       setAllTransactions(response.data);
+  //       setTotalResults(response.data.length);
+
+  //       const totalPages = Math.ceil(totalResults / pageSize);
+
+  //       setTotalPages(totalPages);
+  //     } else {
+  //       setAllTransactions([]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching transactions:", error);
+  //     setAllTransactions([]);
+  //   }
+  // };
+
+  // async function handleFilter() {
+    
+  //   if (!startDate) {
+  //     setStartDate(formattedStartDate)
+  //   }
+  //   if (!endDate){
+  //     setEndDate(formattedTommorow);
+  //   }
+  //   const config = await getAuthConfig();
+  //   console.log()
+  //   try {
+      
+  //     setLoading(true);
+  //     const response = await api.get('/transaction/find', {
+  //       params: { id: selectedUser, date1: startDate, date2: endDate, page: page, pagesize: pageSize },
+  //       ...config // Spreads config properties correctly inside the request
+  //     });
+  //     settotalPages(Math.ceil(response.data.totalRecords/pageSize));
+  //     console.log(totalPages)
+  //     setTransactions(response.data.transactions);
+      
+  //   } catch (err) {
+  //     console.error("Error fetching transactions:", err);
+  //    // alert("Failed to filter");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+
+  //load filtered transactions
+  const handlefilter = async () => {
+
+    if (!startDate) {
+      setStartDate(formattedStartDate)
+    }
+    if (!endDate){
+      setEndDate(formattedTommorow);
+    }
+
+
+    try {
+      const config = await getAuthConfig();
+      const response = await api.get('/suppliertransactions/find', {
+        ...config,
+        params: {
+          page: page,
+          pageSize: pageSize,
+          Date1: startDate,
+          Date2: endDate,
+          supplierId: selectSupplier === "All" ? null : selectSupplier,
+          status: status === "All" ? null : status,
+        }
+      });
+      console.log(response.data);
+        settotalPages(Math.ceil(response.data.totalRecords/pageSize));
+        console.log(totalPages)
+        setTransactions(response.data.transactions);
+    } catch (error) {
+      console.error("Error while retrieving data:", error);
     }
   };
 
   useEffect(() => {
-    if (allTransactions.length > 0) {
-      getSupplierNames();
-    }
-  }, [allTransactions]);
+    handlefilter();
+  }, [page]);
 
-  console.log(allTransactions);
+  //if changing the search fields set the page number to 1
+  useEffect(() => {
+    setPage(1);
+    handlefilter();
+  }, [selectSupplier, startDate, endDate, status]);
+
+  // const handlePageChange = (newPage) => {
+  //   if (newPage >= 1 && newPage <= totalPages) {
+  //     setPage(newPage);
+  //   }
+  // };
+
+
+
+
+
+
+  // const renderPageNumbers = () => {
+  //   let pages = [];
+
+  //   for (let i = 1; i <= totalPages; i++) {
+  //     pages.push(
+  //       <button
+  //         key={i}
+  //         onClick={() => handlePageChange(i)}
+  //         disabled={page === i}
+  //       >
+  //         {i}
+  //       </button>
+  //     );
+  //   }
+  //   return pages;
+  // };
+
+  useEffect(() => {
+    fetchAllSuppliers();
+    fetchProducts();
+  }, []);
+
+  // const getSupplierNames = async () => {
+  //   try {
+  //     const uniqueSupplierIds = [
+  //       ...new Set(Transactions.map((t) => t.supplierId)),
+  //     ]; // Get unique supplier IDs
+
+  //     const fetchedNames = {}; // Temporary storage for supplier names
+
+  //     await Promise.all(
+  //       uniqueSupplierIds.map(async (supplierId) => {
+  //         if (supplierId && !supplierNames[supplierId]) {
+  //           try {
+  //             const response = await api.get(`/supplier/${supplierId}`);
+  //             fetchedNames[supplierId] = response.data.name;
+  //           } catch (error) {
+  //             console.error(`Error fetching supplier ${supplierId}:`, error);
+  //             fetchedNames[supplierId] = "Unknown Supplier"; // Default if error occurs
+  //           }
+  //         }
+  //       })
+  //     );
+
+  //     setSupplierNames((prevNames) => ({ ...prevNames, ...fetchedNames }));
+  //   } catch (error) {
+  //     console.error("Error fetching supplier names:", error);
+  //   }
+  // };
+
+  useEffect(() => {
+    console.log(Transactions);
+  }, [Transactions]);
+
+ 
 
   return (
     <div>
@@ -267,21 +403,21 @@ function SupplierTransaction() {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <label>Results per page:</label>
         <input
           type="number"
           value={pageSize}
           onChange={(e) => setPageSize(e.target.value)}
         />
-      </div>
+      </div> */}
 
       <div>
         <label>Status:</label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="0">--All--</option>
-          <option value="1">pending</option>
-          <option value="2">completed</option>
+          <option value="All">--All--</option>
+          <option value="in progress">In progress</option>
+          <option value="completed">Completed</option>
         </select>
       </div>
 
@@ -298,15 +434,17 @@ function SupplierTransaction() {
           </tr>
         </thead>
         <tbody>
-          {allTransactions.length > 0 ? (
-            allTransactions.map((transaction, index) => (
+          {Transactions ? (
+            Transactions.map((transaction, index) => (
               // created_at
 
               <tr key={transaction.id}>
                 <th>
                   {new Date(transaction.created_at).toLocaleDateString() || "-"}
                 </th>
-                <td>{supplierNames[transaction.supplierId] || "Loading..."}</td>
+                <td>  
+                  {suppliers.find(s => s.id === transaction.supplierId)?.name || " N/A"}            
+                </td>
                 <td>{transaction.amount - transaction.discount || 0}</td>
                 <td>{transaction.paidAmount || 0}</td>
                 <td>{transaction.type}</td>
@@ -347,14 +485,14 @@ function SupplierTransaction() {
         ) : (
           <>
             <button
-              onClick={() => handlePageChange(page - 1)}
+              onClick={() => handlePreviousPage()}
               disabled={page === 1}
             >
               Prev
             </button>
             {renderPageNumbers()}
             <button
-              onClick={() => handlePageChange(page + 1)}
+              onClick={() => handleNextPage()}
               disabled={page === totalPages}
             >
               Next

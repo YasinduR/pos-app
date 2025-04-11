@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
+import { getAuthConfig } from "../../config/authConfig";
 
 export default function PaymentUpdate({
   isOpen,
   onClose,
   initialTransaction,
 }) {
-  if (!isOpen) return null;
+  
 
   const token = localStorage.getItem('token');
   
@@ -235,7 +236,7 @@ export default function PaymentUpdate({
     }
   };
   
-
+  if (!isOpen) return null;
 
   return (
     <div className="dialog-overlay">

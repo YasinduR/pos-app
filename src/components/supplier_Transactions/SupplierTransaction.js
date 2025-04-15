@@ -510,7 +510,7 @@ const handleTransactionUpdate = (transaction) => {
       <StockUpdate
         isOpen={showStockUpdate}
         onClose={() => setShowStockUpdate(false)}
-        initialTransaction={supplierOrder}
+        transaction={supplierOrder}
       />
 
       <PaymentUpdate

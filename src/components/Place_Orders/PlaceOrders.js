@@ -3,6 +3,7 @@ import api from "../../api";
 import { useAlert } from "../../context/AlertContext";
 import { useState, useEffect } from "react";
 import { getAuthConfig } from "../../config/authConfig";
+import { config } from "dotenv";
 
 
 export default function PlaceOrders() {
@@ -89,6 +90,8 @@ export default function PlaceOrders() {
 
     try {
 
+      const config = await getAuthConfig();
+
       const supplierTransaction = {
         supplierId: selectedSupplier,
         amount: customBillTotal,
@@ -106,7 +109,7 @@ export default function PlaceOrders() {
 
       const response = await api.post(
         "/supplierTransaction",
-        supplierTransaction
+        supplierTransaction,config
       );
 
    

@@ -13,14 +13,17 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
       const supplierOrder = transaction.SupplierOrder
       const initialData = supplierOrder.map(item => ({
         itemId: item.itemId,
-        name: item.name || item.itemId,
-        requestedAmount: item.requestedAmount || 0,
-        currentAccepted: item.acceptedAmount || 0,
+        name: item.name,
+        RequestedAmount: item.RequestedAmount,
+        AcceptedAmount: item.AcceptedAmount,
         updatingAmount: 0
       }));
       setStockUpdateData(initialData);
       setError(null);
       setSuccess(false);
+      console.log("data passsed");
+      console.log(transaction);
+      console.log("-------");
     }
   }, [isOpen, transaction]);
 
@@ -51,11 +54,11 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
         setError("No changes to submit");
         return;
       }
-
+      const config = await getAuthConfig();
       const response = await api.post(
-        `/supplierTransaction/updateStock/${transaction.id}`,
-        { stockUpdateData: updates },
-        getAuthConfig()
+        `/supplierTransaction/stockUpdate/${transaction.id}`,
+        updates,
+        config
       );
 
       if (response.data.success) {
@@ -113,13 +116,13 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
                   <input
                     type="number"
                     min="0"
-                    max={item.requestedAmount - item.currentAccepted}
+                    max={item.RequestedAmount - item.AcceptedAmount}
                     value={item.updatingAmount}
                     onChange={(e) => handleAmountChange(index, e.target.value)}
                     style={{ width: "80px" }}
                   />
                 </td>
-                <td>{item.currentAccepted + item.updatingAmount}</td>
+                <td>{item.AcceptedAmount + item.updatingAmount}</td>
               </tr>
             ))}
           </tbody>
@@ -139,7 +142,7 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
 
         <div style={{ marginTop: "20px" }}>
           <button
-            onClick={onClose}
+            onClick={()=>onClose(false)}
             style={{
               padding: "10px 20px",
               marginRight: "10px",

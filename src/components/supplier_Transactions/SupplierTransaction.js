@@ -171,7 +171,7 @@ function SupplierTransaction() {
 const handleSupplierTransactionView = (transaction) => {
   const enrichedTransaction = enrichTransactionWithProducts(transaction);
   setSupplierOrder(enrichedTransaction);
-  console.log(enrichedTransaction);
+  // console.log(enrichedTransaction);
   setShowSupplierTransactionView(true);
 };
 
@@ -189,6 +189,15 @@ const handleTransactionUpdate = (transaction) => {
   
   setShowPaymentUpdate(true);
 };
+
+
+const handleStockUpdateClose =(updated)=>{
+  if(updated){
+    handlefilter();
+  }
+  setShowStockUpdate(false);
+}
+
 
   // const loadAllTransactions = async () => {
   //   try {
@@ -278,6 +287,16 @@ const handleTransactionUpdate = (transaction) => {
   useEffect(() => {
     handlefilter();
   }, [page]);
+
+  
+  useEffect(() => {
+    if(!showStockUpdate){ // call upon saving stock
+      handlefilter();
+    }
+    
+  }, [showStockUpdate]);
+
+
 
   //if changing the search fields set the page number to 1
   useEffect(() => {
@@ -503,13 +522,13 @@ const handleTransactionUpdate = (transaction) => {
 
       <SupplierTransactionView
         isOpen={showSupplierTransactionView}
-        onClose={() => setShowSupplierTransactionView(false)}
+        onClose={()=>setShowSupplierTransactionView(false)}
         initialTransaction={supplierOrder}
       />
 
       <StockUpdate
         isOpen={showStockUpdate}
-        onClose={() => setShowStockUpdate(false)}
+        onClose={(updated) => handleStockUpdateClose(updated)}
         transaction={supplierOrder}
       />
 

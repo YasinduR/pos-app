@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import "../../styles/DialogBox.css";
 import { useAlert } from "../../context/AlertContext";
-import api from '../../api';
-import Transactions from '../Transactions/Transaction';
+import api from "../../api";
+import Transactions from "../Transactions/Transaction";
 
 export default function SupplierTransactionView({
   isOpen,
   onClose,
   initialTransaction,
-})
- {
+}) {
   const [supplierOrder, setSupplierOrder] = useState([]);
   const [billAmount, setBillAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
@@ -17,61 +16,40 @@ export default function SupplierTransactionView({
   const [supplierName, setSupplierName] = useState("");
   const [status, setStatus] = useState("");
 
-
-  const getSupplierName = async () => {
-    if (initialTransaction && initialTransaction.supplierId) {        
-      try {
-        const supplierId = initialTransaction.supplierId;
-        const response = await api.get(`/supplier/${supplierId}`);
-        setSupplierName(response.data.name); 
-      } catch (error) {
-        console.error('Error fetching supplier name:', error);
-      }
-    }
-  };
-
-
   const displaySupplierOrder = () => {
     if (initialTransaction && initialTransaction.SupplierOrder) {
       try {
-        const order = JSON.parse(initialTransaction.SupplierOrder); 
         setBillAmount(initialTransaction.amount || 0);
         setDiscount(initialTransaction.discount || 0);
         setPaidAmount(initialTransaction.paidAmount || 0);
-        setSupplierOrder(order);
-        setStatus(initialTransaction.status || 'in progress'); 
+        setSupplierOrder(initialTransaction.SupplierOrder);
+        setSupplierName(initialTransaction.supplierName);
+        setStatus(initialTransaction.status || "in progress");
       } catch (error) {
-        console.error('Error displaying supplier order:', error);
+        console.error("Error displaying supplier order:", error);
       }
     }
   };
 
-
   useEffect(() => {
-    if(isOpen){
-      console.log("supplierview")
-      console.log(initialTransaction)  // Build according to this 
-      console.log("supplierview")
+    if (isOpen) {
+      console.log(initialTransaction);
+      setSupplierName(initialTransaction.supplierName);
     }
-    
-    getSupplierName();
     displaySupplierOrder();
   }, [isOpen]);
 
-
-
-  if (!isOpen) return null; 
-
-  
+  if (!isOpen) return null;
 
   return (
-    <div className='dialog-overlay'>
-      <div className='dialog-box' style={{ width: "85%" }}>
+    <div className="dialog-overlay">
+      <div className="dialog-box" style={{ width: "85%" }}>
         <div>
-            <div>
+          <div>
             <h1>Supplier Transaction</h1>
-            </div>
-           
+            <hr style={{ marginTop: "20px", marginBottom: "20px" }} />
+          </div>
+
           <div>
             <label>Supplier:</label>
             <input value={supplierName} readOnly />
@@ -79,15 +57,19 @@ export default function SupplierTransactionView({
 
           <div>
             <label>Date:</label>
-            <input value={new Date(initialTransaction.created_at).toLocaleDateString()} readOnly />
+            <input
+              value={new Date(
+                initialTransaction.created_at
+              ).toLocaleDateString()}
+              readOnly
+            />
           </div>
 
           <div>
             <label> paidAmount:</label>
-            <input value={ paidAmount} readOnly />
+            <input value={paidAmount} readOnly />
           </div>
 
-          
           <div>
             <label>Status:</label>
             <input value={status} readOnly />
@@ -114,7 +96,9 @@ export default function SupplierTransactionView({
                       <td>{order.RequestedAmount}</td>
                       <td>{order.unitPrice.toFixed(2)}</td>
                       <td>{order.AcceptedAmount}</td>
-                      <td>{(order.unitPrice * order.RequestedAmount).toFixed(2)}</td>
+                      <td>
+                        {(order.unitPrice * order.RequestedAmount).toFixed(2)}
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -135,8 +119,6 @@ export default function SupplierTransactionView({
             <span>{discount}</span>
           </div>
 
-      
-
           <div>
             <button onClick={onClose}>Close</button>
           </div>
@@ -145,4 +127,3 @@ export default function SupplierTransactionView({
     </div>
   );
 }
-

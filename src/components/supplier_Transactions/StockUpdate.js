@@ -3,6 +3,7 @@ import api from "../../api";
 import { getAuthConfig } from "../../config/authConfig";
 
 export default function StockUpdate({ isOpen, onClose, transaction }) {
+  
   const [stockUpdateData, setStockUpdateData] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -10,34 +11,34 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
   useEffect(() => {
     if (isOpen && transaction) {
       // Initialize form with current accepted amounts
-      const supplierOrder = transaction.SupplierOrder
-      const initialData = supplierOrder.map(item => ({
+      const supplierOrder = transaction.SupplierOrder;
+      const initialData = supplierOrder.map((item) => ({
         itemId: item.itemId,
         name: item.name,
         RequestedAmount: item.RequestedAmount,
         AcceptedAmount: item.AcceptedAmount,
-        updatingAmount: 0
+        updatingAmount: 0,
       }));
       setStockUpdateData(initialData);
       setError(null);
       setSuccess(false);
-      console.log("data passsed");
-      console.log(transaction);
-      console.log("-------");
     }
   }, [isOpen, transaction]);
 
   const handleAmountChange = (index, value) => {
     const newData = [...stockUpdateData];
     const numericValue = parseFloat(value) || 0;
-    
+
     // Validate doesn't exceed requested amount
-    const remaining = newData[index].requestedAmount - newData[index].currentAccepted;
+    const remaining =
+      newData[index].requestedAmount - newData[index].currentAccepted;
     if (numericValue > remaining) {
-      setError(`Cannot accept more than ${remaining} for ${newData[index].name}`);
+      setError(
+        `Cannot accept more than ${remaining} for ${newData[index].name}`
+      );
       return;
     }
-    
+
     newData[index].updatingAmount = numericValue;
     setStockUpdateData(newData);
     setError(null);
@@ -47,14 +48,15 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
     try {
       // Prepare update data (only items with changes)
       const updates = stockUpdateData
-        .filter(item => item.updatingAmount > 0)
+        .filter((item) => item.updatingAmount > 0)
         .map(({ itemId, updatingAmount }) => ({ itemId, updatingAmount }));
-      
+
       if (updates.length === 0) {
         setError("No changes to submit");
         return;
       }
       const config = await getAuthConfig();
+
       const response = await api.post(
         `/supplierTransaction/stockUpdate/${transaction.id}`,
         updates,
@@ -63,9 +65,11 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
 
       if (response.data.success) {
         setSuccess(true);
+
         setTimeout(() => {
           onClose(true); // Close and refresh parent
         }, 1500);
+
       } else {
         setError(response.data.message || "Failed to update stock");
       }
@@ -80,20 +84,23 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
     <div className="dialog-overlay">
       <div className="dialog-box" style={{ width: "85%" }}>
         <h1>Stock Update</h1>
-        
-        <div>
-  <h3>Supplier</h3>
-  <div className="info-display">
-    {transaction?.supplierName || "N/A"}
-  </div>
-</div>
+        <hr style={{ marginTop: "20px", marginBottom: "20px" }} />
 
-<div>
-  <h3>Order Date</h3>
-  <div className="info-display">
-    {transaction ? new Date(transaction.created_at).toLocaleDateString() : ""}
-  </div>
-</div>
+        <div>
+          <h3>Supplier</h3>
+          <div className="info-display">
+            {transaction?.supplierName || "N/A"}
+          </div>
+        </div>
+
+        <div>
+          <h3>Order Date</h3>
+          <div className="info-display">
+            {transaction
+              ? new Date(transaction.created_at).toLocaleDateString()
+              : ""}
+          </div>
+        </div>
 
         <h3>Order Items</h3>
         <table>
@@ -128,11 +135,7 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
           </tbody>
         </table>
 
-        {error && (
-          <div style={{ color: "red", margin: "10px 0" }}>
-            {error}
-          </div>
-        )}
+        {error && <div style={{ color: "red", margin: "10px 0" }}>{error}</div>}
 
         {success && (
           <div style={{ color: "green", margin: "10px 0" }}>
@@ -142,7 +145,7 @@ export default function StockUpdate({ isOpen, onClose, transaction }) {
 
         <div style={{ marginTop: "20px" }}>
           <button
-            onClick={()=>onClose(false)}
+            onClick={() => onClose(false)}
             style={{
               padding: "10px 20px",
               marginRight: "10px",

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
 import api from "../../api";
 import DialogBox from "./DialogBox";
-import "./Tables.css";
+import "../../styles/DialogBox.css";
 import SupplierTransactionView from "./SupplierTransactionView";
 import StockUpdate from "./StockUpdate";
 import PaymentUpdate from "./PaymentUpdate";
@@ -23,7 +23,6 @@ function SupplierTransaction() {
   const [showPaymentUpdate, setShowPaymentUpdate] = useState(false);
 
   const [supplierOrder, setSupplierOrder] = useState(null);
-  // const [transactionType, setTransactionType] = useState("");
   const [loading, setLoading] = useState(true);
   const [supplierNames, setSupplierNames] = useState({});
 
@@ -68,7 +67,6 @@ function SupplierTransaction() {
           key={i}
           onClick={() => handlePageChange(i)}
           disabled={page === i}
-          
         >
           {i}
         </button>
@@ -117,22 +115,14 @@ function SupplierTransaction() {
     }
   }
   
-  // const setDate = () => {
-  //   const today = new Date();
-  //   const fromDate = today.toISOString().split("T")[0];
-
-  //   const tomorrow = new Date();
-  //   tomorrow.setDate(today.getDate() + 1);
-  //   const toDate = tomorrow.toISOString().split("T")[0];
-
-  //   setStartDate(fromDate);
-  //   setEndDate(toDate);
-  // };
-
 
 
   const enrichTransactionWithProducts = (transaction) => {
     try {
+      console.log("=====enrichTransactionWithProducts function inside====");
+      console.log(transaction);
+      
+      
       console.log(products);
       // Parse the JSON string if it's a string
       const supplierOrder = typeof transaction.SupplierOrder === 'string' 
@@ -177,18 +167,27 @@ const handleSupplierTransactionView = (transaction) => {
 
 //open stock update
 const handleStockUpdate = (transaction) => {
-  const enrichedTransaction = enrichTransactionWithProducts(transaction);
+
+  const enrichedTransaction = enrichTransactionWithProducts(transaction);  
   setSupplierOrder(enrichedTransaction);
   setShowStockUpdate(true);
 };
 
 //open transaction update
 const handleTransactionUpdate = (transaction) => {
+
   const enrichedTransaction = enrichTransactionWithProducts(transaction);
+
   setSupplierOrder(enrichedTransaction);
-  
   setShowPaymentUpdate(true);
 };
+
+const handleTransactionUpdateClose=(updated)=>{
+  if(updated){
+    handlefilter()
+  }
+  setShowPaymentUpdate(false)
+}
 
 
 const handleStockUpdateClose =(updated)=>{
@@ -309,10 +308,6 @@ const handleStockUpdateClose =(updated)=>{
   //     setPage(newPage);
   //   }
   // };
-
-
-
-
 
 
   // const renderPageNumbers = () => {
@@ -534,7 +529,7 @@ const handleStockUpdateClose =(updated)=>{
 
       <PaymentUpdate
         isOpen={showPaymentUpdate}
-        onClose={() => setShowPaymentUpdate(false)}
+        onClose={(updated)=>handleTransactionUpdateClose(updated)}
         initialTransaction={supplierOrder}
       />
     </div>

@@ -11,7 +11,7 @@ import Delivery from './components/Delivery/Delivery';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LogTransaction from './components/LogTransaction/LogTransaction';
 import Suppliers from './components/Supplier/Supplier';
-import SupplierTransaction from './components/Supplier_Transactions/SupplierTransaction';
+import SupplierTransaction from './components/supplier_Transactions/SupplierTransaction';
 import PlaceOrders from './components/Place_Orders/PlaceOrders';
 
 

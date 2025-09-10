@@ -199,7 +199,7 @@ const handleStockUpdateClose =(updated)=>{
 }
 
 
-  // const loadAllTransactions = async () => {
+  // const loadAllTransactions = async () => 
   //   try {
   //     const response = await api.get("/supplierTransactions");
 
@@ -234,7 +234,8 @@ const handleStockUpdateClose =(updated)=>{
   //     setLoading(true);
   //     const response = await api.get('/transaction/find', {
   //       params: { id: selectedUser, date1: startDate, date2: endDate, page: page, pagesize: pageSize },
-  //       ...config // Spreads config properties correctly inside the request
+  //    =   ...config // Spreads config properties correctly inside the re\
+  // WA4uest
   //     });
   //     settotalPages(Math.ceil(response.data.totalRecords/pageSize));
   //     console.log(totalPages)
@@ -339,14 +340,14 @@ const handleStockUpdateClose =(updated)=>{
 
   // const getSupplierNames = async () => {
   //   try {
-  //     const uniqueSupplierIds = [
+  //     const unueSupplierIds = [
   //       ...new Set(Transactions.map((t) => t.supplierId)),
-  //     ]; // Get unique supplier IDs
+  //     ]; // Get unue supplier IDs
 
   //     const fetchedNames = {}; // Temporary storage for supplier names
 
   //     await Promise.all(
-  //       uniqueSupplierIds.map(async (supplierId) => {
+  //       unueSupplierIds.map(async (supplierId) => {
   //         if (supplierId && !supplierNames[supplierId]) {
   //           try {
   //             const response = await api.get(`/supplier/${supplierId}`);

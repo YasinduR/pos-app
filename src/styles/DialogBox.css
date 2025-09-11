@@ -47,7 +47,8 @@
   .dialog-box input[type="email"],
   .dialog-box input[type="password"],
   .dialog-box input[type="number"],
-  .dialog-box textarea {
+  .dialog-box textarea,
+  .dialog-box select {
     width: 100%;
     padding: 10px;
     margin-bottom: 1px;
@@ -61,7 +62,8 @@
   .dialog-box input[type="email"]:focus, 
   .dialog-box input[type="password"]:focus,
   .dialog-box input[type="number"]:focus,
-  .dialog-box textarea:focus {
+  .dialog-box textarea:focus,
+  .dialog-box select:focus {
     border-color: #007bff;
     outline: none;
   }

@@ -3,7 +3,7 @@ import '../../styles/DialogBox.css'
 import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
 
-function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser }) {
+function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser,cities = [] }) {
     const { showAlert } = useAlert();
     const Admintypes = ['admin', 'cashier', 'stock-manager']; // ROLES
 
@@ -93,6 +93,8 @@ function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser }) {
                 return isNewUser && value !== User.password ? 'Passwords do not match.' : null;
             case 'admintype':
                 return value === '' ? 'Please select an Admin type.' : null;
+            case 'hometown': // Validation for hometown
+                return value === '' ? 'Please select a hometown.' : null;
             default:
                 return null;
         }
@@ -154,12 +156,16 @@ function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser }) {
                         </>
                     )}
                     <label>
-                        Address:
-                        <input type="text" name="address" value={User.address} onChange={handleChange} />
-                    </label>
-                    <label>
                         Hometown:
-                        <input type="text" name="hometown" value={User.hometown} onChange={handleChange} />
+                        <select name="hometown" value={User.hometown} onChange={handleChange}>
+                            <option value="">Select a Hometown</option>
+                            {cities.map((city) => (
+                                <option key={city.name} value={city.name}>
+                                    {city.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.hometown && <small className="error">{errors.hometown}</small>}
                     </label>
                     <div className="dialog-actions">
                         <button type="button" onClick={handleSave}>Save</button>

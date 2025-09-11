@@ -9,6 +9,7 @@ function Users() {
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   const [users, setUsers] = useState([]);
+  const [cities, setCities] = useState([]); // State to hold city data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editUser, setEditUser] = useState(null);
@@ -20,9 +21,12 @@ function Users() {
     async function fetchUsers() {
       try {
         const config = await getAuthConfig(); // token configs
-        // Set the token in the Authorization header
         const response = await api.get('/admin', config);
         setUsers(response.data);
+        const cityresponse = await api.get('/misc/cities', config);
+        setCities(cityresponse.data); // Set the fetched city data
+
+
       } catch (err) {
         setError('Failed to load admin data.');
       } finally {
@@ -48,7 +52,7 @@ function Users() {
         setUsers((prev) => [...prev, response.data]);
       }
     } catch (err) {
-      alert('Failed to save customer.');
+      alert('Failed to save user.');
     }
   };
 
@@ -65,7 +69,7 @@ function Users() {
   };
   
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    if (window.confirm('Are you sure you want to delete this user?')) {
       const config = await getAuthConfig(); 
       try {
         await api.delete(`/admin/${id}`,config);
@@ -119,6 +123,7 @@ function Users() {
         onSave={handleSaveUser}
         initialUser={editUser}
         isNewUser={isNewUser}
+        cities={cities}
       />
     </div>
   );

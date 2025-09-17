@@ -2,10 +2,13 @@
 import '../../styles/DialogBox.css'
 import React, { useState,useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
+import {useCities } from '../../context/CityContext';
 
 function DialogBox({ isOpen, onClose, onSave, initialCustomer, isNewCustomer }) {
 
     const { showAlert } = useAlert();
+    const { cities, loading: citiesLoading, error: citiesError } = useCities();
+    
 
     const [customer, setCustomer] = useState({
       firstname: '',
@@ -173,15 +176,18 @@ function DialogBox({ isOpen, onClose, onSave, initialCustomer, isNewCustomer }) 
                 onChange={handleChange}
               />
             </label>
-            <label>
-              Hometown:
-              <input
-                type="text"
-                name="hometown"
-                value={customer.hometown}
-                onChange={handleChange}
-              />
-            </label>
+                                <label>
+                        Hometown:
+                        <select name="hometown" value={customer.hometown} onChange={handleChange}>
+                            <option value="">Select a Hometown</option>
+                            {cities.map((city) => (
+                                <option key={city.name} value={city.name}>
+                                    {city.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.hometown && <small className="error">{errors.hometown}</small>}
+                    </label>
             <div className="dialog-actions">
               <button type="button" onClick={handleSave}>
                 Save

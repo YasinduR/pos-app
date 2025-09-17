@@ -9,7 +9,7 @@ function Users() {
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   const [users, setUsers] = useState([]);
-  const [cities, setCities] = useState([]); // State to hold city data
+  //const [cities, setCities] = useState([]); // State to hold city data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editUser, setEditUser] = useState(null);
@@ -23,8 +23,8 @@ function Users() {
         const config = await getAuthConfig(); // token configs
         const response = await api.get('/admin', config);
         setUsers(response.data);
-        const cityresponse = await api.get('/misc/cities', config);
-        setCities(cityresponse.data); // Set the fetched city data
+        //const cityresponse = await api.get('/misc/cities', config);
+        //setCities(cityresponse.data); // Set the fetched city data
 
 
       } catch (err) {
@@ -123,7 +123,7 @@ function Users() {
         onSave={handleSaveUser}
         initialUser={editUser}
         isNewUser={isNewUser}
-        cities={cities}
+        //cities={cities}
       />
     </div>
   );

@@ -14,7 +14,6 @@ import Suppliers from './components/Supplier/Supplier';
 import SupplierTransaction from './components/Supplier_Transactions/SupplierTransaction';
 import PlaceOrders from './components/Place_Orders/PlaceOrders';
 
-
 import Users from './components/Users/Users';
 //import Suppliers from './components/Supplier/Supplier'
 

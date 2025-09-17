@@ -2,11 +2,12 @@
 import '../../styles/DialogBox.css'
 import React, { useState, useEffect } from 'react';
 import { useAlert } from '../../context/AlertContext';
+import {useCities } from '../../context/CityContext';
 
-function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser,cities = [] }) {
+function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser}) {
     const { showAlert } = useAlert();
     const Admintypes = ['admin', 'cashier', 'stock-manager']; // ROLES
-
+    const { cities, loading: citiesLoading, error: citiesError } = useCities();
     const [User, setUser] = useState({
         firstname: '',
         lastname: '',
@@ -141,6 +142,7 @@ function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser,cities = []
                         <input type="email" name="email" value={User.email} onChange={handleChange} />
                         {errors.email && <small className="error">{errors.email}</small>}
                     </label>
+                    
                     {isNewUser && (
                         <>
                             <label>
@@ -166,6 +168,11 @@ function DialogBox({ isOpen, onClose, onSave, initialUser, isNewUser,cities = []
                             ))}
                         </select>
                         {errors.hometown && <small className="error">{errors.hometown}</small>}
+                    </label>
+                                        <label>
+                        Address:
+                        <input type="text" name="address" value={User.address} onChange={handleChange} />
+                        {errors.address && <small className="error">{errors.address}</small>}
                     </label>
                     <div className="dialog-actions">
                         <button type="button" onClick={handleSave}>Save</button>
